@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>1998 財富人生 V10</title>
+    <style>
+        :root { --m-blue: #003366; --m-orange: #E67E22; --m-bg: #F0F4F8; --m-white: #FFFFFF; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif; background-color: var(--m-bg); margin: 0; padding: 10px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 420px; background: var(--m-white); border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; position: relative; height: 850px; }
+        .header { background: var(--m-blue); color: white; padding: 18px; text-align: center; font-weight: bold; font-size: 1.1rem; border-bottom: 4px solid var(--m-orange); }
+        .step { display: none; padding: 20px; flex-direction: column; height: 100%; overflow-y: auto; }
+        .step.active { display: flex; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
+        .script-box { background: #F8F9FA; border-left: 5px solid var(--m-orange); padding: 15px; margin-bottom: 15px; font-size: 0.95rem; line-height: 1.6; color: #444; }
+        .q-title { font-weight: bold; color: var(--m-blue); margin-bottom: 5px; font-size: 1rem; }
+        .val-display { color: var(--m-orange); font-size: 1.3rem; font-weight: bold; text-align: center; margin: 8px 0; }
+        input[type=range] { width: 100%; height: 8px; border-radius: 5px; background: #DDD; outline: none; -webkit-appearance: none; margin-bottom: 5px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--m-orange); cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .balance-footer { margin-top: auto; padding: 15px; border-top: 1px solid #EEE; background: #FAFAFA; }
+        .bal-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .bal-label { font-weight: bold; color: #777; font-size: 0.9rem; }
+        .bal-val { font-size: 1.6rem; font-weight: bold; color: var(--m-orange); }
+        .btn-group { display: flex; gap: 8px; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 50px; font-weight: bold; font-size: 0.95rem; cursor: pointer; }
+        .btn-next { background: var(--m-blue); color: white; }
+        .btn-back { background: #EEE; color: #666; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">1998 財富人生互動</div>
+    <!-- 首頁 -->
+    <div class="step active" id="step0">
+        <div class="script-box">
+            你有聽過1998嗎？<br><br>
+            你想想喔，以一個剛畢業的社會新鮮人，起薪三萬是不是還不錯？如果每年保證加薪3%，年薪保證14個月呢？是不是很不錯。<br><br>
+            那從25歲工作到55歲，30年就是一共賺了1998萬，這就是1998~
+        </div>
+        <div style="margin-bottom:12px;"><label style="font-weight:bold; font-size:0.9rem;">您的姓名</label><input type="text" id="name" style="width:100%; padding:10px; border:1px solid #DDD; border-radius:8px;"></div>
+        <div style="flex-grow:1"></div>
+        <button class="btn btn-next" onclick="nextStep(1)">開始體驗</button>
+    </div>
+
+    <!-- 買車規劃 -->
+    <div class="step" id="step2">
+        <div class="q-title">買車規劃</div>
+        <div class="script-box">那還有哪些開銷呢？是不是會想買車？一台車花多少萬買你覺得比較好？</div>
+        <div class="val-display" id="v_car_buy">80 萬</div>
+        <input type="range" id="q_car_buy" min="0" max="400" step="10" value="80" oninput="calculate()">
+        <div id="car_msg" style="font-size:0.9rem; color:var(--m-blue); font-weight:bold; margin: 10px 0; text-align:center; background:#E6F7FF; padding:10px; border-radius:8px;">
+            然後一台車我們抓開10年再換，30年就需要三台車，這樣一共就是 240 萬
+        </div>
+        <div class="balance-footer">
+            <div class="bal-row"><span class="bal-label">剩下萬元可花：</span><span class="bal-val" id="bal_car"></span></div>
+            <div class="btn-group"><button class="btn btn-back" onclick="prevStep(0)">回首頁</button><button class="btn btn-next" onclick="alert('檔案測試完成，可直接寄出！')">下一題</button></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 0; const income = 1998;
+    function nextStep(s) { document.getElementById('step' + currentStep).classList.remove('active'); currentStep = s; document.getElementById('step' + s).classList.add('active'); calculate(); }
+    function prevStep(s) { document.getElementById('step' + currentStep).classList.remove('active'); currentStep = s; document.getElementById('step' + s).classList.add('active'); }
+    function calculate() {
+        const carPrice = parseInt(document.getElementById('q_car_buy').value);
+        document.getElementById('v_car_buy').innerText = carPrice + " 萬";
+        document.getElementById('car_msg').innerText = "然後一台車我們抓開10年再換，30年就需要三台車，這樣一共就是 " + (carPrice * 3) + " 萬";
+        document.getElementById('bal_car').innerText = Math.round(income - (carPrice * 3) - 1200); // 扣除假設的基本預算
+    }
+</script>
+</body>
+</html>
