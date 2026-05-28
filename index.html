@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>1998 財富人生 V10</title>
+    <title>財富人生 V11</title>
     <style>
         :root { --m-blue: #003366; --m-orange: #E67E22; --m-bg: #F0F4F8; --m-white: #FFFFFF; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
@@ -82,11 +82,11 @@
 </head>
 <body>
 <div class="container">
-    <div class="header">1998 財富人生互動</div>
+    <div class="header">財富人生互動試算</div>
     
     <div class="step active" id="step0" style="justify-content: center;">
-        <div class="script-box">
-            你有聽過1998嗎？<br>你想想喔，以一個剛畢業的社會新鮮人，起薪三萬是不是還不錯？如果每年保證加薪3%，年薪保證14個月呢？是不是很不錯。那從25歲工作到55歲，30年就是一共賺了1998萬，這就是1998~
+        <div class="script-box" style="text-align: center; font-weight: bold; color: var(--m-blue);">
+            歡迎使用財富人生試算系統 ✨<br>請輸入下方資訊以開啟您專屬的財富藍圖。
         </div>
         <div style="margin-bottom:8px;">
             <label style="display:block; font-weight:bold; margin-bottom:3px; font-size:0.82rem;">通訊處</label>
@@ -97,7 +97,37 @@
             <label style="display:block; font-weight:bold; margin-bottom:3px; font-size:0.82rem;">姓名</label>
             <input type="text" id="name" style="width:100%; padding:8px; border:1px solid #DDD; border-radius:8px; font-size:0.88rem;" oninput="checkStart()">
         </div>
-        <button class="btn-cute-center" id="startBtn" onclick="nextStep(1)" disabled>✨ 開始試算 Go!</button>
+        <button class="btn-cute-center" id="startBtn" onclick="nextStep('income')" disabled>✨ 開始試算 Go!</button>
+    </div>
+
+    <div class="step" id="step_income">
+        <div class="q-title">（零）設定您的專屬起點</div>
+        <div class="script-box">
+            每個人的人生起點都不同。請依您目前的現況，拉動設定您的「月收入」以及「年領月數」，我們將幫您算出現實生活中，30年總共能賺進多少財富！
+        </div>
+        
+        <div style="margin-bottom: 5px;">
+            <div class="val-display" style="font-size:1.1rem; text-align:left;">目前月收入：<span id="v_inc_m" style="color:var(--m-orange); font-weight:bold;">3 萬</span></div>
+            <input type="range" id="q_inc_m" min="1" max="30" step="0.5" value="3" oninput="calculate()">
+        </div>
+        
+        <div style="margin-bottom: 5px;">
+            <div class="val-display" style="font-size:1.1rem; text-align:left;">每年領取幾個月 (含年終)：<span id="v_inc_y" style="color:var(--m-orange); font-weight:bold;">14 個月</span></div>
+            <input type="range" id="q_inc_y" min="12" max="24" step="0.5" value="14" oninput="calculate()">
+        </div>
+
+        <div class="stat-card" style="background: #E6F7FF; border: 1px solid #91D5FF; margin-top: 10px;">
+            <div class="stat-line" style="font-size: 0.88rem;"><span>首年預估年薪：</span><b id="inc_year1" style="color:var(--m-blue);">42 萬</b></div>
+            <div class="stat-line" style="font-size: 0.88rem; margin-top: 3px;"><span>💡 考慮每年保證加薪 3%</span></div>
+            <div class="stat-line" style="font-size: 1rem; font-weight: bold; margin-top: 3px;"><span>工作30年總收入：</span><b id="inc_total_30" style="color:green; font-size:1.2rem;">-- 萬</b></div>
+        </div>
+
+        <div class="balance-footer">
+            <div class="btn-group">
+                <button class="btn btn-back" onclick="prevStep(0)">回首頁</button>
+                <button class="btn btn-next" onclick="nextStep(1)">確認總收入，開始規劃</button>
+            </div>
+        </div>
     </div>
 
     <div class="step" id="step1">
@@ -111,7 +141,7 @@
         </div>
         <div class="balance-footer">
             <div class="bal-row"><span class="bal-label">剩下萬元可花：</span><span class="bal-val" id="bal1"></span></div>
-            <div class="btn-group"><button class="btn btn-back" onclick="prevStep(0)">回首頁</button><button class="btn btn-next" onclick="nextStep(2)">下一題</button></div>
+            <div class="btn-group"><button class="btn btn-back" onclick="prevStep('income')">上一頁</button><button class="btn btn-next" onclick="nextStep(2)">下一題</button></div>
         </div>
     </div>
 
@@ -140,7 +170,7 @@
 
     <div class="step" id="step3">
         <div class="q-title">（三）出國旅遊</div>
-        <div class="script-box">然後，我們這麼辛苦工作，每年一次招待自己出國旅遊不為過吧？你覺得花幾萬比較適合？那三十年就要多少錢？</div>
+        <div class="script-box">然後，我們這麼辛苦工作，每年一次面談招待自己出國旅遊，你覺得花幾萬比較適合？那三十年就要多少錢？</div>
         <div class="val-display" id="v3">5 萬</div>
         <input type="range" id="q3" min="0" max="30" step="1" value="5" oninput="calculate()">
         <div class="stat-card">
@@ -155,7 +185,7 @@
 
     <div class="step" id="step4">
         <div class="q-title">（四）成家買房</div>
-        <div class="script-box">你會不會希望買一間房，假設要花多少萬買房，利息加上一些費用三十年也得再多支出500萬，扣掉這些，是不是已經不夠用了</div>
+        <div class="script-box">你會不會希望買一間房，假設要花多少萬買房，利息加上一些費用三十年也得多支出500萬，扣掉這些，是不是已經不夠用了</div>
         <div class="val-display" id="v4">1000 萬</div>
         <input type="range" id="q4" min="0" max="4000" step="50" value="1000" oninput="calculate()">
         <div class="stat-card">
@@ -206,7 +236,7 @@
         
         <div style="background:var(--m-blue); color:white; border-radius:12px; padding:10px 14px; box-shadow:0 6px 12px rgba(0,0,0,0.15);">
             <div class="report-item" style="font-weight:bold; border-bottom:1.5px solid white; padding-bottom:3px;"><span>項目明細 (工作30年)</span><span>預算金額</span></div>
-            <div class="report-item"><span>1998 預計總收入</span><span>1,998 萬</span></div>
+            <div class="report-item" style="background:rgba(255,255,255,0.1); font-weight:bold;"><span>預估生涯總收入</span><span id="r_inc_total"></span></div>
             <div class="report-item"><span>1. 基本開銷總計</span><span id="r1"></span></div>
             <div class="report-item"><span>2. 車輛花費 (3台+養車)</span><span id="r2"></span></div>
             <div class="report-item"><span>3. 出國旅遊總計</span><span id="r3"></span></div>
@@ -222,8 +252,9 @@
 
 <script>
     let currentStep = 0;
-    const income = 1998;
-    const ALLOWED_UNITS = ['宏觀', '宏觀通訊處','華山', '華山通訊處'];
+    let income = 1998; // 預設值，後面會隨互動被動態取代
+
+    const ALLOWED_UNITS = ['華山', '華山通訊處', '宏觀', '宏觀通訊處'];
 
     function checkStart() {
         const u = document.getElementById('unit').value.trim();
@@ -259,6 +290,28 @@
     }
 
     function calculate() {
+        // 🎯 核心更新：精算 30 年加薪 3% 的複利總收入
+        const incM = parseFloat(document.getElementById('q_inc_m').value);
+        const incY = parseFloat(document.getElementById('q_inc_y').value);
+        document.getElementById('v_inc_m').innerText = incM + " 萬";
+        document.getElementById('v_inc_y').innerText = incY + " 個月";
+
+        let firstYearSalary = incM * incY;
+        document.getElementById('inc_year1').innerText = firstYearSalary.toFixed(1) + " 萬";
+
+        // 3% 複利計算 30 年總收入
+        let totalIncome = 0;
+        let currentYearSalary = firstYearSalary;
+        for (let year = 1; year <= 30; year++) {
+            totalIncome += currentYearSalary;
+            currentYearSalary *= 1.03; // 每年加薪 3%
+        }
+        
+        // 四捨五入成整數萬元，並取代原本的 1998 萬
+        income = Math.round(totalIncome);
+        document.getElementById('inc_total_30').innerText = income.toLocaleString() + " 萬";
+
+        // --- 以下所有題目完全自動跟著新的 income 動態計算 ---
         const q1 = parseFloat(document.getElementById('q1').value);
         const t1 = q1 * 12 * 30;
         document.getElementById('v1').innerText = q1 + " 萬";
@@ -300,6 +353,7 @@
         document.getElementById('v6').innerText = q6 + " 萬";
         document.getElementById('t6').innerText = q6 + " 萬";
 
+        // 用動態產生的總收入去扣除所有花費
         const b1 = income - t1;
         const b2 = b1 - t2_total;
         const b3 = b2 - t3;
@@ -307,16 +361,19 @@
         const b5 = b4 - t5;
         const b6 = b5 - q6;
 
-        document.getElementById('bal1').innerText = Math.round(b1);
-        document.getElementById('bal2').innerText = Math.round(b2);
-        document.getElementById('bal3').innerText = Math.round(b3);
-        document.getElementById('bal4').innerText = Math.round(b4);
-        document.getElementById('bal5').innerText = Math.round(b5);
-        document.getElementById('bal6').innerText = Math.round(b6);
+        document.getElementById('bal1').innerText = Math.round(b1).toLocaleString();
+        document.getElementById('bal2').innerText = Math.round(b2).toLocaleString();
+        document.getElementById('bal3').innerText = Math.round(b3).toLocaleString();
+        document.getElementById('bal4').innerText = Math.round(b4).toLocaleString();
+        document.getElementById('bal5').innerText = Math.round(b5).toLocaleString();
+        document.getElementById('bal6').innerText = Math.round(b6).toLocaleString();
 
         for(let i=1; i<=6; i++) {
             const el = document.getElementById('bal' + i);
-            if(el) el.style.color = parseInt(el.innerText) < 0 ? "red" : "#E67E22";
+            if(el) {
+                let val = parseInt(el.innerText.replace(/,/g, ''));
+                el.style.color = val < 0 ? "red" : "#E67E22";
+            }
         }
     }
 
@@ -325,6 +382,8 @@
         const n = document.getElementById('name').value; 
         document.getElementById('res_header').innerText = u + " / " + n;
         
+        document.getElementById('r_inc_total').innerText = income.toLocaleString() + " 萬";
+
         const q1 = parseFloat(document.getElementById('q1').value) * 12 * 30;
         const q2b_3 = parseInt(document.getElementById('q2_buy').value) * 3;
         const q2m = parseFloat(document.getElementById('q2_maint').value) * 12 * 30;
@@ -336,15 +395,15 @@
         
         const fin = income - q1 - q2_all - q3 - q4 - q5 - q6;
         
-        document.getElementById('r1').innerText = "- " + Math.round(q1) + " 萬"; 
-        document.getElementById('r2').innerText = "- " + Math.round(q2_all) + " 萬"; 
-        document.getElementById('r3').innerText = "- " + q3 + " 萬"; 
-        document.getElementById('r4').innerText = "- " + q4 + " 萬"; 
-        document.getElementById('r5').innerText = "- " + Math.round(q5) + " 萬"; 
-        document.getElementById('r6').innerText = "- " + q6 + " 萬";
+        document.getElementById('r1').innerText = "- " + Math.round(q1).toLocaleString() + " 萬"; 
+        document.getElementById('r2').innerText = "- " + Math.round(q2_all).toLocaleString() + " 萬"; 
+        document.getElementById('r3').innerText = "- " + q3.toLocaleString() + " 萬"; 
+        document.getElementById('r4').innerText = "- " + q4.toLocaleString() + " 萬"; 
+        document.getElementById('r5').innerText = "- " + Math.round(q5).toLocaleString() + " 萬"; 
+        document.getElementById('r6').innerText = "- " + q6.toLocaleString() + " 萬";
         
         const rf = document.getElementById('rf'); 
-        rf.innerText = Math.round(fin) + " 萬"; 
+        rf.innerText = Math.round(fin).toLocaleString() + " 萬"; 
         rf.style.color = fin < 0 ? "#FF7675" : "#2ECC71";
     }
 
