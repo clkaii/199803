@@ -252,7 +252,7 @@
 
 <script>
     let currentStep = 0;
-    let income = 1998; // 預設值，後面會隨互動被動態取代
+    let income = 1998; 
 
     const ALLOWED_UNITS = ['華山', '華山通訊處', '宏觀', '宏觀通訊處'];
 
@@ -290,7 +290,6 @@
     }
 
     function calculate() {
-        // 🎯 核心更新：精算 30 年加薪 3% 的複利總收入
         const incM = parseFloat(document.getElementById('q_inc_m').value);
         const incY = parseFloat(document.getElementById('q_inc_y').value);
         document.getElementById('v_inc_m').innerText = incM + " 萬";
@@ -299,19 +298,16 @@
         let firstYearSalary = incM * incY;
         document.getElementById('inc_year1').innerText = firstYearSalary.toFixed(1) + " 萬";
 
-        // 3% 複利計算 30 年總收入
         let totalIncome = 0;
         let currentYearSalary = firstYearSalary;
         for (let year = 1; year <= 30; year++) {
             totalIncome += currentYearSalary;
-            currentYearSalary *= 1.03; // 每年加薪 3%
+            currentYearSalary *= 1.03; 
         }
         
-        // 四捨五入成整數萬元，並取代原本的 1998 萬
         income = Math.round(totalIncome);
         document.getElementById('inc_total_30').innerText = income.toLocaleString() + " 萬";
 
-        // --- 以下所有題目完全自動跟著新的 income 動態計算 ---
         const q1 = parseFloat(document.getElementById('q1').value);
         const t1 = q1 * 12 * 30;
         document.getElementById('v1').innerText = q1 + " 萬";
@@ -353,7 +349,6 @@
         document.getElementById('v6').innerText = q6 + " 萬";
         document.getElementById('t6').innerText = q6 + " 萬";
 
-        // 用動態產生的總收入去扣除所有花費
         const b1 = income - t1;
         const b2 = b1 - t2_total;
         const b3 = b2 - t3;
