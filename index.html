@@ -2,109 +2,223 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>職涯飛行航道診斷 - Career Flight Assessment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>職涯飛行模擬器 - Career Cockpit Simulator</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         body {
-            background: #0f172a;
+            background: #090d16;
             color: #f8fafc;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 15px;
+            padding: 12px;
             overflow-x: hidden;
         }
 
-        /* Responsive Container for Mobile & Tablet */
-        .app-card {
+        /* 模擬器主體框架 */
+        .simulator-card {
             width: 100%;
-            max-width: 480px;
-            background: #1e293b;
-            border-radius: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            padding: 24px 20px;
+            max-width: 450px;
+            height: 90vh;
+            max-height: 780px;
+            background: #111827;
+            border-radius: 28px;
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.05);
             position: relative;
-            border: 1px solid #334155;
+            border: 2px solid #1f2937;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        /* Screen States */
+        /* 駕駛艙景觀螢幕 (HUD / Viewport) */
+        .cockpit-viewport {
+            position: relative;
+            width: 100%;
+            height: 48%;
+            background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 2px solid #374151;
+            transition: all 0.8s ease;
+        }
+
+        /* 雲層 / 風暴背景動畫 */
+        .bg-sky {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            opacity: 0.6;
+            transition: all 0.8s ease;
+        }
+
+        /* 太陽 / 夕陽 / 警報日光 */
+        .sun-effect {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            filter: blur(25px);
+            opacity: 0;
+            transition: all 0.8s ease;
+        }
+
+        /* 警報閃紅燈特效 */
+        .alarm-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(239, 68, 68, 0.25);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .alarm-active {
+            animation: blink 0.8s infinite alternate;
+        }
+        @keyframes blink {
+            from { opacity: 0.1; }
+            to { opacity: 0.45; }
+        }
+
+        /* 駕駛艙飛機圖示與儀表板 HUD */
+        .plane-container {
+            position: relative;
+            z-index: 10;
+            font-size: 64px;
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+        }
+
+        .hud-overlay {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 15;
+            font-family: monospace;
+            font-size: 11px;
+            color: #38bdf8;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
+        }
+
+        .hud-status-badge {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        /* 油表與高度計 */
+        .hud-gauges {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            gap: 10px;
+            z-index: 15;
+        }
+        .gauge-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .gauge-bar-fill {
+            height: 100%;
+            width: 50%;
+            background: #38bdf8;
+            transition: width 0.8s ease, background 0.8s ease;
+        }
+
+        /* 下方操作控制面板 (Control Panel) */
+        .cockpit-controls {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #111827;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* 畫面切換控制 */
         .screen {
             display: none;
             opacity: 0;
-            transition: opacity 0.4s ease-in-out;
+            transition: opacity 0.4s ease;
+            height: 100%;
+            flex-direction: column;
+            justify-content: space-between;
         }
-
         .screen.active {
-            display: block;
+            display: flex;
             opacity: 1;
         }
 
-        /* Badges & Titles */
-        .tag-badge {
-            display: inline-block;
-            background: rgba(99, 102, 241, 0.15);
-            color: #818cf8;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 20px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-        }
-
-        h1 {
-            font-size: 24px;
+        .dialog-title {
+            font-size: 18px;
             font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 8px;
+            color: #f3f4f6;
+            margin-bottom: 6px;
             line-height: 1.3;
         }
 
-        p.subtitle {
-            font-size: 14px;
-            color: #94a3b8;
-            margin-bottom: 24px;
-            line-height: 1.5;
+        .dialog-desc {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+            line-height: 1.4;
         }
 
-        /* Buttons & Options */
-        .option-btn {
+        /* 控制按鈕/操縱桿按鈕 */
+        .control-btn {
             width: 100%;
-            background: #334155;
-            border: 1.5px solid #475569;
+            background: #1f2937;
+            border: 1.5px solid #374151;
             border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            color: #f8fafc;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            color: #f3f4f6;
             text-align: left;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 12px;
         }
-
-        .option-btn:hover, .option-btn:active {
-            background: #475569;
+        .control-btn:hover, .control-btn:active {
+            background: #374151;
             border-color: #6366f1;
-            transform: translateY(-2px);
+            transform: scale(0.99);
         }
 
-        .option-icon {
-            font-size: 24px;
+        .btn-icon {
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             background: rgba(255, 255, 255, 0.05);
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -117,311 +231,327 @@
             color: #ffffff;
             border: none;
             border-radius: 16px;
-            padding: 16px;
-            font-size: 16px;
+            padding: 15px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
             transition: all 0.2s ease;
-            margin-top: 10px;
         }
 
-        .cta-btn:hover {
-            opacity: 0.95;
-            transform: translateY(-1px);
-        }
-
-        /* Video Container */
-        .video-container {
+        /* YouTube 影片響應式容器 */
+        .video-box {
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            background: #000;
-            border: 1px solid #334155;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #374151;
         }
-
-        .video-container iframe {
+        .video-box iframe {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
+            top:0; left:0; width:100%; height:100%;
         }
 
-        /* Quote Cards */
-        .quote-card {
-            background: #334155;
-            border: 1.5px solid #475569;
-            border-radius: 14px;
-            padding: 14px 16px;
-            margin-bottom: 10px;
+        /* 金句選卡 */
+        .quote-item {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #d1d5db;
             cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 14px;
-            line-height: 1.4;
-            color: #cbd5e1;
         }
-
-        .quote-card.selected {
-            background: rgba(99, 102, 241, 0.2);
+        .quote-item.selected {
             border-color: #818cf8;
-            color: #ffffff;
+            background: rgba(99, 102, 241, 0.2);
+            color: #fff;
             font-weight: 600;
         }
 
-        /* Result Card */
-        .result-box {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid #334155;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
+        /* 診斷書卡片 */
+        .report-card {
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 12px;
         }
 
-        .result-header {
-            font-size: 18px;
-            font-weight: 700;
-            color: #38bdf8;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .result-quote-box {
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 3px solid #818cf8;
-            padding: 10px 14px;
-            font-style: italic;
-            margin-top: 12px;
-            font-size: 13px;
-            color: #cbd5e1;
-            border-radius: 0 8px 8px 0;
-        }
-
-        /* Form Inputs */
-        .input-group {
-            margin-bottom: 14px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 6px;
-        }
-
-        .input-group input {
+        .input-style {
             width: 100%;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 12px 14px;
-            color: #ffffff;
-            font-size: 15px;
+            background: #030712;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            padding: 10px;
+            color: #fff;
+            font-size: 13px;
+            margin-bottom: 10px;
             outline: none;
-        }
-
-        .input-group input:focus {
-            border-color: #6366f1;
-        }
-
-        /* Notice Box */
-        .notice-box {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 12px;
-            color: #fbbf24;
-            margin-top: 14px;
-            line-height: 1.4;
         }
     </style>
 </head>
 <body>
 
-    <div class="app-card">
-        <!-- 畫面一：歡迎頁 -->
-        <div id="screen-welcome" class="screen active">
-            <span class="tag-badge">✈️ 職涯狀態自我檢測</span>
-            <h1>你的職涯航道，正飛往哪個方向？</h1>
-            <p class="subtitle">花費 1 分鐘進行飛行診斷，探索你目前的職涯狀態與潛在挑戰。</p>
-            <button class="cta-btn" onclick="goToScreen('screen-q1')">開始診斷 ➔</button>
-        </div>
-
-        <!-- 畫面二：飛機問題 -->
-        <div id="screen-q1" class="screen">
-            <span class="tag-badge">第一關：飛行狀態診斷</span>
-            <h1>如果把你的工作比喻成一架正在飛行的飛機...</h1>
-            <p class="subtitle">請直覺選擇最符合你當前狀態的描述：</p>
-
-            <button class="option-btn" onclick="selectFlight('A')">
-                <div class="option-icon">🛫</div>
-                <div>
-                    <strong>A. 正在往上飛</strong>
-                    <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">充滿挑戰，持續爬升與突破中</div>
-                </div>
-            </button>
-
-            <button class="option-btn" onclick="selectFlight('B')">
-                <div class="option-icon">🛬</div>
-                <div>
-                    <strong>B. 在往下飛</strong>
-                    <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">遭遇亂流，感覺正在下滑或被掏空</div>
-                </div>
-            </button>
-
-            <button class="option-btn" onclick="selectFlight('C')">
-                <div class="option-icon">✈️</div>
-                <div>
-                    <strong>C. 平行飛行但慢慢降落中</strong>
-                    <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">表面平穩安逸，但燃料正在耗盡</div>
-                </div>
-            </button>
-        </div>
-
-        <!-- 畫面三：老虎影片與金句 -->
-        <div id="screen-q2" class="screen">
-            <span class="tag-badge">第二關：觀看影片與心靈共鳴</span>
-            <h1>觀看短影音，尋找你的共鳴</h1>
-            <p class="subtitle">請觀看下方影片，並選出一句最震撼或戳中你內心感受的話：</p>
-
-            <!-- YouTube Video Embed -->
-            <div class="video-container">
-                <iframe src="https://www.youtube.com/embed/SDHDKS7gIyI" title="Tiger Video" allowfullscreen></iframe>
-            </div>
-
-            <div id="quote-list">
-                <div class="quote-card" onclick="selectQuote(this, '追求穩定需要付出代價，你是否願意接受挑戰？')">
-                    💡 「追求穩定需要付出代價，你是否願意接受挑戰？」
-                </div>
-                <div class="quote-card" onclick="selectQuote(this, '溫水煮青蛙的舒適圈，正在悄悄抹煞你的可能性。')">
-                    💡 「溫水煮青蛙的舒適圈，正在悄悄抹煞你的可能性。」
-                </div>
-                <div class="quote-card" onclick="selectQuote(this, '不敢嘗試突破，其實只是害怕失敗的代價。')">
-                    💡 「不敢嘗試突破，其實只是害怕失敗的代價。」
-                </div>
-            </div>
-
-            <button class="cta-btn" id="to-result-btn" style="display:none;" onclick="showResult()">生成我的專屬診斷報告 ➔</button>
-        </div>
-
-        <!-- 畫面四：診斷結果與一對一預約 -->
-        <div id="screen-result" class="screen">
-            <span class="tag-badge">📊 你的職涯飛行診斷書</span>
+    <div class="simulator-card">
+        <!-- 頂部 Cockpit 駕駛艙景觀螢幕 -->
+        <div class="cockpit-viewport" id="viewport">
+            <div class="alarm-overlay" id="alarmOverlay"></div>
+            <div class="sun-effect" id="sunEffect"></div>
             
-            <div class="result-box">
-                <div class="result-header">
-                    <span id="res-icon">✈️</span>
-                    <span id="res-title">診斷結果讀取中...</span>
-                </div>
-                <p id="res-desc" style="font-size: 14px; line-height: 1.6; color: #cbd5e1;"></p>
-                
-                <div class="result-quote-box">
-                    <strong>最共鳴金句：</strong><br>
-                    <span id="res-quote">「-」</span>
-                </div>
+            <div class="hud-overlay">
+                <div class="hud-status-badge" id="hudStatus">SYSTEM: READY</div>
+                <div style="font-size:10px;" id="hudAlt">ALT: 12,000 FT</div>
             </div>
 
-            <h3 style="font-size: 16px; margin-bottom: 8px;">🚀 解鎖你的專屬導航策略</h3>
-            <p class="subtitle" style="margin-bottom: 16px;">這份診斷僅是第一步。若想了解如何補給航道燃料或重新設定飛行目標，請填寫下方資訊，預約與專業導師進行 1-on-1 深度解析：</p>
+            <div class="plane-container" id="plane">✈️</div>
 
-            <form id="appointment-form" onsubmit="handleFormSubmit(event)">
-                <div class="input-group">
-                    <label>你的稱呼</label>
-                    <input type="text" id="user-name" placeholder="例如：陳先生 / Alex" required>
+            <div class="hud-gauges">
+                <div style="flex:1;">
+                    <div style="font-size:9px; color:#9ca3af; margin-bottom:2px;">FUEL (油量)</div>
+                    <div class="gauge-bar-bg"><div class="gauge-bar-fill" id="fuelBar" style="width: 80%;"></div></div>
                 </div>
-                <div class="input-group">
-                    <label>LINE ID 或 聯絡電話</label>
-                    <input type="text" id="user-contact" placeholder="方便導師主動聯繫你" required>
+                <div style="flex:1;">
+                    <div style="font-size:9px; color:#9ca3af; margin-bottom:2px;">THRUST (推力)</div>
+                    <div class="gauge-bar-bg"><div class="gauge-bar-fill" id="thrustBar" style="width: 60%; background:#a855f7;"></div></div>
                 </div>
-                <button type="submit" class="cta-btn">預約 1-on-1 職涯對話 ➔</button>
-            </form>
-
-            <div class="notice-box">
-                📌 <strong>導師溫馨提醒：</strong><br>
-                改變不需要一個人硬撐。送出後，我們會盡快與您聯繫安排時間！
             </div>
         </div>
 
-        <!-- 畫面五：完成感謝 -->
-        <div id="screen-thanks" class="screen" style="text-align: center; padding: 20px 0;">
-            <div style="font-size: 50px; margin-bottom: 16px;">🎉</div>
-            <h1>預約已成功送出！</h1>
-            <p class="subtitle">我們已收到你的飛行診斷報告，專屬導師將會在 24 小時內透過 LINE/電話 與你取得聯繫，請留意訊息通知。</p>
-            <button class="cta-btn" onclick="location.reload()">重新測驗</button>
+        <!-- 下方控制儀表板與流程 -->
+        <div class="cockpit-controls">
+
+            <!-- 畫面 1: 遊戲開始 -->
+            <div id="scr-start" class="screen active">
+                <div>
+                    <div class="dialog-title">🛩️ 職場飛行模擬器啟動</div>
+                    <div class="dialog-desc">歡迎進入職場駕駛艙！請進行系統診斷，測試你當前職涯飛機的航向與動力狀態。</div>
+                </div>
+                <button class="cta-btn" onclick="startFlight()">開始飛行診斷 ➔</button>
+            </div>
+
+            <!-- 畫面 2: 飛機選擇題 (微型遊戲選擇) -->
+            <div id="scr-choice" class="screen">
+                <div>
+                    <div class="dialog-title">如果你把現在的工作比喻成一架飛行中的飛機...</div>
+                    <div class="dialog-desc">按下操縱桿，選擇它目前的飛行姿態：</div>
+
+                    <button class="control-btn" onclick="triggerMode('A')">
+                        <div class="btn-icon">🛫</div>
+                        <div>
+                            <strong>A. 正在往上飛</strong>
+                            <div style="font-size: 11px; color: #9ca3af;">全力爬升、突破挑戰中</div>
+                        </div>
+                    </button>
+
+                    <button class="control-btn" onclick="triggerMode('B')">
+                        <div class="btn-icon">🛬</div>
+                        <div>
+                            <strong>B. 在往下飛</strong>
+                            <div style="font-size: 11px; color: #9ca3af;">遭遇亂流、感到下滑或掏空</div>
+                        </div>
+                    </button>
+
+                    <button class="control-btn" onclick="triggerMode('C')">
+                        <div class="btn-icon">🌅</div>
+                        <div>
+                            <strong>C. 平行飛行但慢慢降落中</strong>
+                            <div style="font-size: 11px; color: #9ca3af;">看似平穩，但燃料正逐漸耗盡</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 畫面 3: 模擬器視覺動畫反饋與過場 -->
+            <div id="scr-feedback" class="screen">
+                <div>
+                    <div class="dialog-title" id="fb-title">狀態分析中...</div>
+                    <div class="dialog-desc" id="fb-desc">...</div>
+                </div>
+                <button class="cta-btn" onclick="goToTiger()">進入下一階段：老虎挑戰 ➔</button>
+            </div>
+
+            <!-- 畫面 4: 老虎影片與金句選擇 -->
+            <div id="scr-tiger" class="screen">
+                <div>
+                    <div class="dialog-title">🐯 老虎關卡：觀看影音共鳴</div>
+                    <div class="dialog-desc">觀看影片，選出最戳中你內心感受的一句話：</div>
+
+                    <div class="video-box">
+                        <iframe src="https://www.youtube.com/embed/SDHDKS7gIyI" title="Tiger Video" allowfullscreen></iframe>
+                    </div>
+
+                    <div class="quote-item" onclick="pickQuote(this, '追求穩定需要付出代價，你是否願意接受挑戰？')">
+                        💡 「追求穩定需要付出代價，你是否願意接受挑戰？」
+                    </div>
+                    <div class="quote-item" onclick="pickQuote(this, '溫水煮青蛙的舒適圈，正在悄悄抹煞你的可能性。')">
+                        💡 「溫水煮青蛙的舒適圈，正在悄悄抹煞你的可能性。」
+                    </div>
+                    <div class="quote-item" onclick="pickQuote(this, '不敢嘗試突破，其實只是害怕失敗的代價。')">
+                        💡 「不敢嘗試突破，其實只是害怕失敗的代價。」
+                    </div>
+                </div>
+                <button class="cta-btn" id="toReportBtn" style="display:none;" onclick="showDiagnosis()">解鎖我的飛行診斷書 ➔</button>
+            </div>
+
+            <!-- 畫面 5: 診斷書卡片 + 一對一預約 -->
+            <div id="scr-report" class="screen">
+                <div style="overflow-y: auto; padding-right: 4px;">
+                    <div class="dialog-title">📋 專屬「職涯狀態診斷書」</div>
+                    
+                    <div class="report-card">
+                        <div style="font-weight: 700; color: #38bdf8; margin-bottom: 6px; font-size: 15px;" id="repTitle">...</div>
+                        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.5;" id="repDesc">...</div>
+                        <div style="margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-left: 3px solid #818cf8; font-size: 11px; color: #e2e8f0;">
+                            <strong>心靈共鳴：</strong><span id="repQuote">-</span>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">🤝 預約導師 1-on-1 航道解析</div>
+                    <form onsubmit="submitForm(event)">
+                        <input type="text" class="input-style" id="uName" placeholder="你的稱呼" required>
+                        <input type="text" class="input-style" id="uContact" placeholder="LINE ID 或 聯絡電話" required>
+                        <button class="cta-btn" type="submit">預約深度職涯諮詢 ➔</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 畫面 6: 完成頁 -->
+            <div id="scr-thanks" class="screen" style="text-align: center; justify-content: center;">
+                <div style="font-size: 48px; margin-bottom: 12px;">🛫</div>
+                <div class="dialog-title">航道解析預約已送出！</div>
+                <div class="dialog-desc">專屬導師將會在 24 小時內與你聯繫，協助你重新設定職涯飛行藍圖。</div>
+                <button class="cta-btn" onclick="location.reload()">重新體驗模擬器</button>
+            </div>
+
         </div>
     </div>
 
     <script>
-        // Data State
-        let userData = {
-            flightChoice: '',
-            quoteChoice: '',
+        let state = {
+            mode: '',
+            quote: '',
             name: '',
             contact: ''
         };
 
-        // Screen Switcher
-        function goToScreen(screenId) {
+        function setScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
+            document.getElementById(id).classList.add('active');
         }
 
-        // Selection Handlers
-        function selectFlight(choice) {
-            userData.flightChoice = choice;
-            goToScreen('screen-q2');
+        function startFlight() {
+            setScreen('scr-choice');
         }
 
-        function selectQuote(element, quoteText) {
-            document.querySelectorAll('.quote-card').forEach(c => c.classList.remove('selected'));
-            element.classList.add('selected');
-            userData.quoteChoice = quoteText;
-            document.getElementById('to-result-btn').style.display = 'block';
-        }
+        // 核心：方案一的視覺動態模擬器效果
+        function triggerMode(mode) {
+            state.mode = mode;
+            const viewport = document.getElementById('viewport');
+            const plane = document.getElementById('plane');
+            const sun = document.getElementById('sunEffect');
+            const alarm = document.getElementById('alarmOverlay');
+            const hudStatus = document.getElementById('hudStatus');
+            const hudAlt = document.getElementById('hudAlt');
+            const fuelBar = document.getElementById('fuelBar');
+            
+            const fbTitle = document.getElementById('fb-title');
+            const fbDesc = document.getElementById('fb-desc');
 
-        // Generate Result Analysis
-        function showResult() {
-            const titleEl = document.getElementById('res-title');
-            const descEl = document.getElementById('res-desc');
-            const iconEl = document.getElementById('res-icon');
-            const quoteEl = document.getElementById('res-quote');
+            // 重置
+            alarm.classList.remove('alarm-active');
+            sun.style.opacity = '0';
 
-            quoteEl.innerText = userData.quoteChoice;
+            if (mode === 'A') {
+                // A. 正在往上飛
+                viewport.style.background = 'linear-gradient(180deg, #0284c7 0%, #38bdf8 100%)';
+                plane.style.transform = 'translateY(-20px) rotate(-25deg) scale(1.1)';
+                sun.style.background = '#fef08a';
+                sun.style.top = '10%'; sun.style.right = '10%'; sun.style.opacity = '0.9';
+                
+                hudStatus.innerText = 'STATUS: CLIMBING 🚀';
+                hudStatus.style.color = '#fef08a';
+                hudAlt.innerText = 'ALT: 35,000 FT ↑';
+                fuelBar.style.width = '90%';
+                fuelBar.style.background = '#38bdf8';
 
-            if (userData.flightChoice === 'A') {
-                iconEl.innerText = '🛫';
-                titleEl.innerText = '衝刺爬升型：急需大氣層外導航';
-                descEl.innerText = '你目前充滿企圖心且努力向上，這非常棒！但持續爬升意味著遭遇更強風阻與高壓。你現在需要的是更強大的系統與導師，幫你指引更高的目標，避免在高空失去氧氣與方向。';
-            } else if (userData.flightChoice === 'B') {
-                iconEl.innerText = '🛬';
-                titleEl.innerText = '亂流急降型：急需緊急導航與新航道';
-                descEl.innerText = '你現在可能面臨工作瓶頸、壓迫感或嚴重的被掏空感。繼續維持現狀只會加速消耗。你需要一個新的職涯航道與強力的輔導系統，協助你重拾飛行高度與主導權。';
-            } else {
-                iconEl.innerText = '✈️';
-                titleEl.innerText = '黃昏巡航型：警惕燃料悄悄耗盡';
-                descEl.innerText = '目前的工作看似穩定安逸，但這往往是溫水煮青蛙的開始。隨著時間推移，燃油與市場競爭力正在慢慢減少。現在正是重新檢查裝備、為職涯注入新動能的最佳時機！';
+                fbTitle.innerText = '升空特刊：心態積極，目標是突破大氣層！';
+                fbDesc.innerText = '你充滿動力且勇於挑戰更高的視界！然而在高空爬升意味著遭遇更大風阻，你需要更強大的系統支援，才能順利突破大氣層，飛向更高格局。';
+
+            } else if (mode === 'B') {
+                // B. 在往下飛
+                viewport.style.background = 'linear-gradient(180deg, #450a0a 0%, #0f172a 100%)';
+                plane.style.transform = 'translateY(30px) rotate(35deg) scale(0.95)';
+                alarm.classList.add('alarm-active');
+
+                hudStatus.innerText = 'WARNING: TURBULENCE ⚠️';
+                hudStatus.style.color = '#ef4444';
+                hudAlt.innerText = 'ALT: 4,200 FT ↓';
+                fuelBar.style.width = '35%';
+                fuelBar.style.background = '#ef4444';
+
+                fbTitle.innerText = '警報！職涯亂流中：你需要一個強力的導航系統！';
+                fbDesc.innerText = '警告！飛機遭遇嚴重亂流與失速風險，你可能正在經歷職場消耗與方向迷失。繼續硬撐只會加速俯衝，現在需要專業導航重新矯正航線！';
+
+            } else if (mode === 'C') {
+                // C. 平行飛行但慢慢降落
+                viewport.style.background = 'linear-gradient(180deg, #7c2d12 0%, #1e1b4b 100%)';
+                plane.style.transform = 'translateY(10px) rotate(5deg) scale(1)';
+                sun.style.background = '#f97316';
+                sun.style.bottom = '20%'; sun.style.left = '10%'; sun.style.opacity = '0.7';
+
+                hudStatus.innerText = 'NOTICE: FUEL LOW ⛽';
+                hudStatus.style.color = '#fbbf24';
+                hudAlt.innerText = 'ALT: 15,000 FT ↓';
+                fuelBar.style.width = '15%';
+                fuelBar.style.background = '#fbbf24';
+
+                fbTitle.innerText = '警報：燃料耗盡中！看似穩定，實則正在失去高度...';
+                fbDesc.innerText = '看似平穩的巡航背後，夕陽正在西下，油表指針正悄悄歸零。舒適圈的安逸正在侵蝕你的競爭力，是時候進行燃料補給了！';
             }
 
-            goToScreen('screen-result');
+            setScreen('scr-feedback');
         }
 
-        // Form Submission
-        function handleFormSubmit(e) {
+        function goToTiger() {
+            setScreen('scr-tiger');
+        }
+
+        function pickQuote(el, text) {
+            document.querySelectorAll('.quote-item').forEach(q => q.classList.remove('selected'));
+            el.classList.add('selected');
+            state.quote = text;
+            document.getElementById('toReportBtn').style.display = 'block';
+        }
+
+        function showDiagnosis() {
+            const title = document.getElementById('repTitle');
+            const desc = document.getElementById('repDesc');
+            document.getElementById('repQuote').innerText = state.quote;
+
+            if (state.mode === 'A') {
+                title.innerText = '🛫 升空特刊型：尋求突破大氣層的能量';
+                desc.innerText = '你處於積極擴張期，但獨自爬升容易遭遇高空亂流與瓶頸。你需要的不是常規工作，而是一個能讓你職涯高度翻倍的事業平台！';
+            } else if (state.mode === 'B') {
+                title.innerText = '🛬 亂流警報型：急需全新航道與導航';
+                desc.innerText = '你目前飽受職場亂流與環境消耗所苦。此時硬撐代價極高，你需要一個全新的航道與導師導航，幫你安全落地並重新起飛。';
+            } else {
+                title.innerText = '🌅 夕陽巡航型：警戒燃料耗盡與失速';
+                desc.innerText = '現狀看似安穩，但市場環境瞬息萬變，燃料正悄悄耗盡。趁現在還有高度，主動尋求補給與轉型，才是最安全的選擇。';
+            }
+
+            setScreen('scr-report');
+        }
+
+        function submitForm(e) {
             e.preventDefault();
-            userData.name = document.getElementById('user-name').value;
-            userData.contact = document.getElementById('user-contact').value;
-
-            // 這裡可以串接 Formspree, Google Sheets 或 LINE Notify API
-            console.log("提交的新人資料：", userData);
-
-            goToScreen('screen-thanks');
+            state.name = document.getElementById('uName').value;
+            state.contact = document.getElementById('uContact').value;
+            console.log("提交的資料：", state);
+            setScreen('scr-thanks');
         }
     </script>
 </body>
