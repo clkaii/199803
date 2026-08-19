@@ -1,83 +1,196 @@
-/* ==========================================
-   文青精緻風 (Aesthetic Earthy Theme)
-   ========================================== */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;600&display=swap');
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系統登入</title>
+  <!-- 引入 Google Fonts 文青風字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
 
-:root {
-  --bg-color: #f7f5f0;            /* 溫潤米白底色 */
-  --card-bg: #ffffff;            /* 純白卡片背景 */
-  --text-main: #3a3535;          /* 深暖灰文字 */
-  --text-muted: #8c857b;         /* 淺暖灰說明字 */
-  --primary: #7c6853;            /* 大地栗棕主色 */
-  --primary-hover: #5c4c3c;      /* 深栗棕 hover */
-  --border-color: #e2ded4;       /* 柔和細邊框 */
-  --focus-ring: #c4b69c;         /* 聚焦環線色 */
-  --error-color: #b85b56;        /* 莫蘭迪紅 (錯誤提示) */
-  --font-serif: 'Noto Serif TC', serif;
-  --font-sans: 'Noto Sans TC', sans-serif;
-}
+  <style>
+    /* 全局變數：文青大地色系 */
+    :root {
+      --bg-color: #f7f5f0;
+      --card-bg: #ffffff;
+      --text-main: #3a3535;
+      --text-muted: #8c857b;
+      --primary: #7c6853;
+      --primary-hover: #5c4c3c;
+      --border-color: #e2ded4;
+      --focus-ring: #c4b69c;
+      --error-color: #b85b56;
+      --font-serif: 'Noto Serif TC', serif;
+      --font-sans: 'Noto Sans TC', sans-serif;
+    }
 
-body {
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  font-family: var(--font-sans);
-  /* 紙張質感點陣紋理 */
-  background-image: radial-gradient(#e5dfd3 0.8px, transparent 0.8px);
-  background-size: 16px 16px;
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* 卡片與容器樣式 */
-.card, .container, .form-wrapper {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 10px 30px rgba(124, 104, 83, 0.05);
-  border-radius: 12px;
-}
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      /* 背景柔和點陣紋理 */
+      background-image: radial-gradient(#e5dfd3 0.8px, transparent 0.8px);
+      background-size: 16px 16px;
+    }
 
-/* 標題風格 */
-h1, h2, h3, .title {
-  font-family: var(--font-serif);
-  color: var(--text-main);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
+    .card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 36px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(124, 104, 83, 0.05);
+    }
 
-/* 輸入框樣式 */
-input[type="text"], input[type="password"], select, textarea {
-  background-color: #faf9f6;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  border-radius: 6px;
-  transition: all 0.25s ease;
-}
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
 
-input[type="text"]:focus, select:focus, textarea:focus {
-  background-color: #ffffff;
-  border-color: var(--focus-ring);
-  box-shadow: 0 0 0 3px rgba(196, 182, 156, 0.2);
-  outline: none;
-}
+    .header h1 {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: 0.05em;
+    }
 
-/* 按鈕樣式 */
-button, .btn, input[type="submit"] {
-  background-color: var(--primary);
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  font-family: var(--font-serif);
-  letter-spacing: 0.1em;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(124, 104, 83, 0.15);
-  cursor: pointer;
-}
+    .divider {
+      width: 30px;
+      height: 1px;
+      background-color: var(--primary);
+      margin: 14px auto 0;
+      opacity: 0.6;
+    }
 
-button:hover, .btn:hover, input[type="submit"]:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(124, 104, 83, 0.2);
-}
+    .form-group {
+      margin-bottom: 20px;
+    }
 
-/* 錯誤提示 */
-.error, .error-msg, .invalid-feedback {
-  color: var(--error-color);
-}
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-family: var(--font-sans);
+      color: var(--text-main);
+      background-color: #faf9f6;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    input[type="text"]:focus {
+      background-color: #ffffff;
+      border-color: var(--focus-ring);
+      box-shadow: 0 0 0 3px rgba(196, 182, 156, 0.2);
+    }
+
+    .error-msg {
+      font-size: 0.8rem;
+      color: var(--error-color);
+      margin-top: 6px;
+      display: none;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: var(--font-serif);
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(124, 104, 83, 0.15);
+    }
+
+    .btn-submit:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <h1>身份確認</h1>
+      <div class="divider"></div>
+    </div>
+
+    <form id="mainForm" onsubmit="handleNext(event)">
+      <!-- 姓名欄位 -->
+      <div class="form-group">
+        <label for="userName">姓名</label>
+        <input type="text" id="userName" placeholder="請輸入姓名" required autocomplete="off">
+      </div>
+
+      <!-- 通訊處欄位 -->
+      <div class="form-group">
+        <label for="officeLocation">通訊處</label>
+        <input type="text" id="officeLocation" placeholder="請輸入通訊處名稱" required autocomplete="off">
+        <div id="officeError" class="error-msg">非指定通訊處，無法進入下一步</div>
+      </div>
+
+      <!-- 下一步按鈕 -->
+      <button type="submit" class="btn-submit">下一步</button>
+    </form>
+  </div>
+
+  <script>
+    // 指定允許的 26 個通訊處清單
+    const validOffices = [
+      "威力", "玉山", "北二直轄一", "北二直轄", "昊陽", 
+      "众山", "誠山", "華山", "昕立", "駿廷", 
+      "駿山", "駿鋮", "雙贏", "仁愛", "鴻山", 
+      "展毓", "臻觀", "宏國", "宏觀", "凌山", 
+      "崧峰", "忠信", "敦煌", "慶昇", "東山", "洽山"
+    ];
+
+    function handleNext(event) {
+      event.preventDefault();
+
+      const officeInput = document.getElementById('officeLocation').value.trim();
+      const officeError = document.getElementById('officeError');
+
+      // 檢查通訊處是否在清單中
+      if (validOffices.includes(officeInput)) {
+        officeError.style.display = 'none';
+        
+        // 驗證成功！請在此處接續您原本「下一步」的程式邏輯（例如跳頁）：
+        // window.location.href = "your_next_page.html";
+        alert("驗證通過，進入下一步！");
+      } else {
+        // 驗證失敗，顯示錯誤提示
+        officeError.style.display = 'block';
+      }
+    }
+  </script>
+
+</body>
+</html>
