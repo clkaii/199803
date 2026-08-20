@@ -6,9 +6,11 @@
     <title>職涯飛行模擬器 - Career Cockpit Simulator</title>
     <!-- 載入 YouTube IFrame Player API -->
     <script src="https://www.youtube.com/iframe_api"></script>
+    <!-- 載入 html2canvas 以支援截圖功能 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            /* 預設字體大小調整為 28px */
+            /* 預設字體大小 28px */
             --base-font-size: 28px;
         }
 
@@ -148,7 +150,7 @@
             transition: width 0.8s ease, background 0.8s ease;
         }
 
-        /* 控制面板區塊 (允許滾動防止 28px 超出) */
+        /* 控制面板區塊 */
         .cockpit-controls {
             flex: 1;
             padding: 12px;
@@ -274,6 +276,21 @@
             margin-top: 4px;
         }
 
+        .save-btn {
+            width: 100%;
+            background: #10b981;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px;
+            font-size: calc(var(--base-font-size) * 0.55);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 6px;
+            margin-bottom: 6px;
+        }
+
         /* 雷達掃描動畫 */
         .radar-box {
             width: 100px;
@@ -358,12 +375,14 @@
             font-weight: 600;
         }
 
+        /* 可截圖的診斷書卡片 */
         .report-card {
-            background: rgba(17, 24, 39, 0.9);
+            background: rgba(17, 24, 39, 0.95);
             border: 1px solid #374151;
-            border-radius: 10px;
-            padding: 8px 10px;
+            border-radius: 12px;
+            padding: 10px 12px;
             margin-bottom: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .input-style {
@@ -380,6 +399,30 @@
             -webkit-user-select: text;
         }
         .input-style:focus { border-color: #6366f1; }
+
+        /* 行事曆時段按鈕組 */
+        .time-slots-container {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .time-slot-btn {
+            flex: 1;
+            background: #1f2937;
+            border: 1px solid #374151;
+            color: #d1d5db;
+            padding: 6px 0;
+            border-radius: 6px;
+            font-size: calc(var(--base-font-size) * 0.45);
+            cursor: pointer;
+            text-align: center;
+        }
+        .time-slot-btn.selected {
+            background: #4f46e5;
+            color: #fff;
+            border-color: #818cf8;
+            font-weight: bold;
+        }
 
         .error-hint {
             color: #ef4444;
@@ -536,7 +579,6 @@
 
                         <div class="video-wrapper" id="videoWrapper">
                             <div class="video-box">
-                                <!-- YT API 引用的 iframe -->
                                 <iframe id="ytplayer" src="https://www.youtube.com/embed/SDHDKS7gIyI?enablejsapi=1&rel=0" title="Tiger Video" allow="fullscreen"></iframe>
                             </div>
                             <div class="danmaku-container" id="danmakuBox"></div>
@@ -556,13 +598,14 @@
                 </div>
             </div>
 
-            <!-- 畫面 7: 診斷書卡片 -->
+            <!-- 畫面 7: 診斷書卡片與行事曆選擇 -->
             <div id="scr-report" class="screen">
                 <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                     <div>
                         <div class="dialog-title">📋 專屬「職涯狀態診斷書」</div>
                         
-                        <div class="report-card">
+                        <!-- 可截圖保存的診斷卡片區域 -->
+                        <div class="report-card" id="reportCardToCapture">
                             <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af; margin-bottom: 2px;">
                                 單位：<span id="repOffice" style="color:#fff;">-</span> ｜ 姓名：<span id="repName" style="color:#fff;">-</span>
                             </div>
@@ -574,12 +617,27 @@
                             </div>
                         </div>
 
-                        <div style="font-size: calc(var(--base-font-size) * 0.55); font-weight: 600; margin-bottom: 3px;">🤝 預約導師 1-on-1 航道解析</div>
-                        <form id="contactForm" onsubmit="submitForm(event)">
-                            <input type="text" class="input-style" id="uContact" placeholder="LINE ID 或 聯絡電話" required>
+                        <!-- 截圖下載按鈕 -->
+                        <button class="save-btn" onclick="captureReport()">📷 下載診斷書圖片 (儲存分享)</button>
+
+                        <!-- 直覺式行事曆與時間點選擇 -->
+                        <div style="font-size: calc(var(--base-font-size) * 0.55); font-weight: 600; margin-bottom: 4px;">📅 選擇導師 1-on-1 諮詢時間</div>
+                        <form id="bookingForm" onsubmit="submitForm(event)">
+                            <div style="margin-bottom: 4px;">
+                                <label style="font-size: calc(var(--base-font-size) * 0.4); color: #9ca3af;">預約日期：</label>
+                                <input type="date" class="input-style" id="bookDate" required style="color-scheme: dark;">
+                            </div>
+                            <div>
+                                <label style="font-size: calc(var(--base-font-size) * 0.4); color: #9ca3af;">時段選擇：</label>
+                                <div class="time-slots-container">
+                                    <div class="time-slot-btn selected" onclick="selectSlot(this, '上午 (10:00-12:00)')">上午</div>
+                                    <div class="time-slot-btn" onclick="selectSlot(this, '下午 (14:00-17:00)')">下午</div>
+                                    <div class="time-slot-btn" onclick="selectSlot(this, '晚上 (19:00-21:00)')">晚上</div>
+                                </div>
+                            </div>
                         </form>
                     </div>
-                    <button class="cta-btn" onclick="playBeep(); document.getElementById('contactForm').requestSubmit()">預約深度職涯諮詢 ➔</button>
+                    <button class="cta-btn" onclick="playBeep(); document.getElementById('bookingForm').requestSubmit()">確認預約導師諮詢 ➔</button>
                 </div>
             </div>
 
@@ -587,7 +645,7 @@
             <div id="scr-thanks" class="screen" style="text-align: center; justify-content: center;">
                 <div style="font-size: calc(var(--base-font-size) * 2); margin-bottom: 8px;">🛫</div>
                 <div class="dialog-title">航道解析預約已送出！</div>
-                <div class="dialog-desc">專屬導師將會在 24 小時內與你聯繫，協助你重新設定職涯飛行藍圖。</div>
+                <div class="dialog-desc" id="thanksMsg">專屬導師將會在預約時段與你聯繫，協助你重新設定職涯飛行藍圖。</div>
                 <button class="cta-btn" onclick="playBeep(); location.reload()" style="margin-top: 10px;">重新體驗模擬器</button>
             </div>
 
@@ -608,12 +666,22 @@
             name: '',
             mode: '',
             quote: '',
-            contact: '',
+            bookDate: '',
+            bookSlot: '上午 (10:00-12:00)',
             hp: 80,
             thrust: 60,
             fuel: 70,
             badge: ''
         };
+
+        // 初始化日期選擇器的預設值（設為明天）
+        window.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('bookDate');
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            dateInput.value = tomorrow.toISOString().split('T')[0];
+            dateInput.min = new Date().toISOString().split('T')[0];
+        });
 
         // YouTube Player API
         let ytPlayer;
@@ -627,7 +695,6 @@
 
         function onPlayerStateChange(event) {
             const container = document.getElementById('videoWrapper');
-            // 當開始播放 (PLAYING = 1) -> 觸發全螢幕
             if (event.data === YT.PlayerState.PLAYING) {
                 if (container.requestFullscreen) {
                     container.requestFullscreen().catch(err => console.log("全螢幕請求受限:", err));
@@ -635,7 +702,6 @@
                     container.webkitRequestFullscreen();
                 }
             }
-            // 當影片結束 (ENDED = 0) -> 自動退出全螢幕
             if (event.data === YT.PlayerState.ENDED) {
                 if (document.fullscreenElement || document.webkitFullscreenElement) {
                     if (document.exitFullscreen) {
@@ -647,7 +713,6 @@
             }
         }
 
-        // 離開影片頁面時停止播放
         function stopTigerVideo() {
             if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
                 ytPlayer.pauseVideo();
@@ -697,7 +762,6 @@
         }
 
         function setScreen(id) {
-            // 若切換離開老虎頁面，停止影片播放
             if (id !== 'scr-tiger') {
                 stopTigerVideo();
             }
@@ -893,10 +957,37 @@
             setScreen('scr-report');
         }
 
+        // 選擇時段按鈕事件
+        function selectSlot(el, slotText) {
+            playBeep();
+            document.querySelectorAll('.time-slot-btn').forEach(btn => btn.classList.remove('selected'));
+            el.classList.add('selected');
+            state.bookSlot = slotText;
+        }
+
+        // 截圖儲存功能 (html2canvas)
+        function captureReport() {
+            playBeep();
+            const card = document.getElementById('reportCardToCapture');
+            html2canvas(card, {
+                backgroundColor: '#111827',
+                scale: 2
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `${state.name}_職涯飛行診斷書.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
         function submitForm(e) {
             e.preventDefault();
-            state.contact = document.getElementById('uContact').value;
-            console.log("完整診斷資料：", state);
+            state.bookDate = document.getElementById('bookDate').value;
+            
+            const thanksMsg = document.getElementById('thanksMsg');
+            thanksMsg.innerText = `已成功為您預約 ${state.bookDate} ${state.bookSlot}！專屬導師將會在該時段與您聯繫。`;
+            
+            console.log("完整診斷與預約資料：", state);
             setScreen('scr-thanks');
         }
     </script>
