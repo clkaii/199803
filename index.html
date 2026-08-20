@@ -62,7 +62,7 @@
             justify-content: center;
             align-items: center;
             border-bottom: 2px solid #374151;
-            transition: all 0.8s ease;
+            transition: all 0.6s ease;
             flex-shrink: 0;
         }
 
@@ -96,7 +96,7 @@
             position: relative;
             z-index: 10;
             font-size: calc(var(--base-font-size) * 2);
-            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
         }
 
@@ -121,6 +121,7 @@
             padding: 2px 6px;
             border-radius: 8px;
             border: 1px solid rgba(56, 189, 248, 0.3);
+            transition: all 0.3s ease;
         }
 
         /* 三維儀表板 */
@@ -145,7 +146,7 @@
             height: 100%;
             width: 50%;
             background: #38bdf8;
-            transition: width 0.8s ease, background 0.8s ease;
+            transition: width 0.6s ease, background 0.6s ease;
         }
 
         /* 控制面板區塊 */
@@ -186,6 +187,19 @@
             color: #9ca3af;
             margin-bottom: 8px;
             line-height: 1.25;
+        }
+
+        /* 面向標籤 */
+        .dimension-badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            border: 1px solid rgba(129, 140, 248, 0.4);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: calc(var(--base-font-size) * 0.45);
+            font-weight: 600;
+            margin-bottom: 6px;
         }
 
         /* 字體拉霸 */
@@ -234,7 +248,7 @@
             margin-bottom: 6px;
             color: #f3f4f6;
             text-align: left;
-            font-size: calc(var(--base-font-size) * 0.55);
+            font-size: calc(var(--base-font-size) * 0.52);
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -247,7 +261,7 @@
         }
 
         .btn-icon {
-            font-size: calc(var(--base-font-size) * 0.8);
+            font-size: calc(var(--base-font-size) * 0.75);
             width: 28px;
             height: 28px;
             border-radius: 6px;
@@ -455,13 +469,12 @@
         <!-- 下方控制儀表板 -->
         <div class="cockpit-controls">
 
-            <!-- 畫面 1: 首頁 (預設字體 28px) -->
+            <!-- 畫面 1: 首頁 -->
             <div id="scr-start" class="screen active">
                 <div>
                     <div class="dialog-title">🛩️ 職場飛行模擬器啟動</div>
                     <div class="dialog-desc">歡迎進入駕駛艙！設定視覺並進行授權：</div>
 
-                    <!-- 字體拉霸：預設 28px -->
                     <div class="font-slider-container">
                         <span class="font-slider-label">🔤 字體大小</span>
                         <input type="range" class="font-slider" id="fontSlider" min="16" max="36" value="28" oninput="adjustFontSize(this.value)">
@@ -511,27 +524,18 @@
                 </div>
             </div>
 
-            <!-- 畫面 3: 職場突發事件 -->
+            <!-- 畫面 3: 8大面向職場亂流考驗 (動態渲染) -->
             <div id="scr-event" class="screen">
                 <div>
-                    <div class="dialog-title">⚠️ 突發情況：高空職場亂流！</div>
-                    <div class="dialog-desc">團隊遇到緊急專案與無預警加班，你的應對策略是？</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="dialog-title">⚠️ 高空職場亂流考驗</div>
+                        <div class="dimension-badge" id="turbDimBadge">1/8 面向</div>
+                    </div>
+                    <div class="dialog-desc" id="turbQuestion">亂流題目載入中...</div>
 
-                    <button class="control-btn" onclick="playBeep(); chooseEvent('A')">
-                        <div class="btn-icon">⚡</div>
-                        <div>
-                            <strong>主動扛下任務，展現領導力</strong>
-                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af;">推力+20% | 心智-15%</div>
-                        </div>
-                    </button>
-
-                    <button class="control-btn" onclick="playBeep(); chooseEvent('B')">
-                        <div class="btn-icon">🛡️</div>
-                        <div>
-                            <strong>畫清界線，避免被過度消耗</strong>
-                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af;">心智+10% | 燃料-15%</div>
-                        </div>
-                    </button>
+                    <div id="turbOptionsBox">
+                        <!-- 動態生成三個選項按鈕 -->
+                    </div>
                 </div>
             </div>
 
@@ -587,7 +591,7 @@
                 </div>
             </div>
 
-            <!-- 畫面 7: 診斷書卡片與預約導師（滾輪時間選擇與即時卡片顯示） -->
+            <!-- 畫面 7: 診斷書卡片與預約導師 -->
             <div id="scr-report" class="screen">
                 <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                     <div>
@@ -605,7 +609,7 @@
                             </div>
                         </div>
 
-                        <!-- 預約導師行事曆與時間滾輪選取 -->
+                        <!-- 預約導師行事曆與時間選取 -->
                         <div style="font-size: calc(var(--base-font-size) * 0.55); font-weight: 600; margin-bottom: 6px; color: #38bdf8;">📅 預約導師 1-on-1 諮詢時間</div>
                         <form id="bookingForm" onsubmit="submitForm(event)">
                             <div style="margin-bottom: 6px;">
@@ -618,7 +622,6 @@
                             </div>
                         </form>
 
-                        <!-- 日期時間選完後彈出的卡片區塊 -->
                         <div id="bookingPreviewBox" class="booking-preview-card" style="display: none;">
                             <div style="font-size: calc(var(--base-font-size) * 0.45); color: #38bdf8; font-weight: bold;">📌 已選擇預約時間</div>
                             <div id="bookingPreviewText" style="font-size: calc(var(--base-font-size) * 0.65); font-weight: 700; color: #ffffff; margin-top: 2px;"></div>
@@ -648,6 +651,84 @@
             "崧峰", "忠信", "敦煌", "慶昇", "東山", "洽山"
         ];
 
+        // 8 大面向亂流題目資料庫
+        const turbulenceQuestions = [
+            {
+                dimension: "合理報酬",
+                question: "努力與薪水不成正比，加班加點卻只拿固定死薪水？",
+                options: [
+                    { icon: "🛫", title: "爭取分紅或尋求高獎金制度舞台", desc: "把付出轉化為高額實質回報", trend: "up" },
+                    { icon: "✈️", title: "領多少錢做多少事，不額外付出", desc: "維持基本產出，心態保持平穩", trend: "flat" },
+                    { icon: "🛬", title: "默默忍受並抱怨，影響工作熱情", desc: "無力改變現狀，陷入低效內耗", trend: "down" }
+                ]
+            },
+            {
+                dimension: "時間自主",
+                question: "工作佔滿生活，主管與客戶隨時隨地交辦任務？",
+                options: [
+                    { icon: "🛫", title: "建立明確界線，追求高度自主彈性", desc: "掌控個人時間，打造高效生活", trend: "up" },
+                    { icon: "✈️", title: "盡力配合，在極限邊緣維持平衡", desc: "犧牲部分個人時間完成交辦", trend: "flat" },
+                    { icon: "🛬", title: "隨時高壓焦慮，生活與工作失衡", desc: "長期隨機應變，身心備感疲憊", trend: "down" }
+                ]
+            },
+            {
+                dimension: "產業前景",
+                question: "現有產業逐漸飽和或面臨 AI 替代威脅？",
+                options: [
+                    { icon: "🛫", title: "跨界學習新技能，佈局高成長賽道", desc: "主動轉型，搶先掌握未來趨勢", trend: "up" },
+                    { icon: "✈️", title: "觀望環境變化，跟隨公司步調", desc: "暫不作大幅變動，步步為營", trend: "flat" },
+                    { icon: "🛬", title: "擔心被淘汰卻不知道該如何改變", desc: "被動等待環境考驗，焦慮遞增", trend: "down" }
+                ]
+            },
+            {
+                dimension: "個人成長",
+                question: "日復一日重複機械性工作，感覺能力停滯不前？",
+                options: [
+                    { icon: "🛫", title: "主動挑戰新專案，累積核心槓桿能力", desc: "持續跨出舒適圈，打造不可替代性", trend: "up" },
+                    { icon: "✈️", title: "完成本職學能，將精力放在下班生活", desc: "工作為輔，維持平穩日常", trend: "flat" },
+                    { icon: "🛬", title: "陷入日復一日的麻木感與無力感", desc: "成長停滯，逐漸失去職場競爭力", trend: "down" }
+                ]
+            },
+            {
+                dimension: "工作價值",
+                question: "做的事情缺乏成就感，找不到對社會或個人的意義？",
+                options: [
+                    { icon: "🛫", title: "重新定義目標，尋求能直接利他的舞台", desc: "讓每份努力都創造實質社會價值", trend: "up" },
+                    { icon: "✈️", title: "調整心態，將工作視為單純獲利工具", desc: "抽離情緒，當作一份日常差事", trend: "flat" },
+                    { icon: "🛬", title: "感到空虛與懷疑人生，對未來失去熱情", desc: "缺乏內部動機，工作日趨痛苦", trend: "down" }
+                ]
+            },
+            {
+                dimension: "晉升機會",
+                question: "升遷管道狹窄看重資歷，表現優異卻難以發揮？",
+                options: [
+                    { icon: "🛫", title: "尋求公開透明且無上限的升遷機制", desc: "用實力說話，自己掌握升遷節奏", trend: "up" },
+                    { icon: "✈️", title: "按照公司排隊文化慢慢熬，等待機會", desc: "遵守既有規則，循序漸進發展", trend: "flat" },
+                    { icon: "🛬", title: "覺得懷才不遇，滿腹牢騷且心生灰心", desc: "天花板過低，才能無法施展", trend: "down" }
+                ]
+            },
+            {
+                dimension: "工作氛圍",
+                question: "團隊內耗嚴重、政治角力多，溝通成本高昂？",
+                options: [
+                    { icon: "🛫", title: "選擇目標一致、互助共好的夥伴團隊", desc: "在正向環境中激發最佳表現", trend: "up" },
+                    { icon: "✈️", title: "保持距離不捲入紛爭，做好管轄業務", desc: "獨善其身，避免受人際干擾", trend: "flat" },
+                    { icon: "🛬", title: "每天上班心情沉重，深受職場消耗所苦", desc: "人際內耗過高，嚴重影響情緒", trend: "down" }
+                ]
+            },
+            {
+                dimension: "公司福利",
+                question: "福利資源平平，缺乏長期的保障與團隊激勵？",
+                options: [
+                    { icon: "🛫", title: "追求自主掌握福利與全方位保障制度", desc: "為自己與家人打造強大後盾", trend: "up" },
+                    { icon: "✈️", title: "有基本保障即可，不抱過高期待", desc: "接受現有體制，平穩過日子", trend: "flat" },
+                    { icon: "🛬", title: "頻繁拿其他公司比較，心生不滿無力改變", desc: "充滿抱怨，缺乏安全感", trend: "down" }
+                ]
+            }
+        ];
+
+        let currentTurbIndex = 0;
+
         let state = {
             office: '',
             name: '',
@@ -658,10 +739,11 @@
             hp: 80,
             thrust: 60,
             fuel: 70,
+            altitude: 12000,
             badge: ''
         };
 
-        // 初始化日期選擇器（預設明天）
+        // 初始化日期選擇器
         window.addEventListener('DOMContentLoaded', () => {
             const dateInput = document.getElementById('bookDate');
             const tomorrow = new Date();
@@ -670,7 +752,6 @@
             dateInput.min = new Date().toISOString().split('T')[0];
         });
 
-        // 即時更新並顯示預約日期與時間
         function updateBookingPreview() {
             const dateVal = document.getElementById('bookDate').value;
             const timeVal = document.getElementById('bookTime').value;
@@ -769,6 +850,7 @@
             document.getElementById('hpBar').style.width = Math.max(5, Math.min(100, state.hp)) + '%';
             document.getElementById('thrustBar').style.width = Math.max(5, Math.min(100, state.thrust)) + '%';
             document.getElementById('fuelBar').style.width = Math.max(5, Math.min(100, state.fuel)) + '%';
+            document.getElementById('hudAlt').innerText = `ALT: ${state.altitude.toLocaleString()} FT`;
         }
 
         function setScreen(id) {
@@ -812,79 +894,118 @@
 
         function triggerMode(mode) {
             state.mode = mode;
+            if (mode === 'A') {
+                state.altitude = 25000;
+                applyPlaneState('up', 'STATUS: CLIMBING 🚀');
+            } else if (mode === 'B') {
+                state.altitude = 8000;
+                applyPlaneState('down', 'WARNING: TURBULENCE ⚠️');
+            } else if (mode === 'C') {
+                state.altitude = 15000;
+                applyPlaneState('flat', 'NOTICE: CRUISING ✈️');
+            }
+
+            currentTurbIndex = 0;
+            renderTurbulenceQuestion();
+            setScreen('scr-event');
+        }
+
+        // 飛機姿態與畫面動態切換核心函式
+        function applyPlaneState(trend, statusText) {
             const viewport = document.getElementById('viewport');
             const plane = document.getElementById('plane');
             const sun = document.getElementById('sunEffect');
             const alarm = document.getElementById('alarmOverlay');
             const hudStatus = document.getElementById('hudStatus');
-            const hudAlt = document.getElementById('hudAlt');
 
             alarm.classList.remove('alarm-active');
             sun.style.opacity = '0';
 
-            if (mode === 'A') {
-                playTone(600, 0.4);
+            if (trend === 'up') {
+                playTone(650, 0.3);
                 viewport.style.background = 'linear-gradient(180deg, #0284c7 0%, #38bdf8 100%)';
-                plane.style.transform = 'translateY(-15px) rotate(-25deg) scale(1.05)';
+                plane.style.transform = 'translateY(-15px) rotate(-22deg) scale(1.05)';
                 sun.style.background = '#fef08a';
                 sun.style.top = '10%'; sun.style.right = '10%'; sun.style.opacity = '0.9';
-                
-                hudStatus.innerText = 'STATUS: CLIMBING 🚀';
+                hudStatus.innerText = statusText || 'STATUS: CLIMBING 🚀';
                 hudStatus.style.color = '#fef08a';
-                hudAlt.innerText = 'ALT: 35,000 FT ↑';
-                
-                state.hp -= 10; state.thrust += 30; state.fuel -= 15;
-            } else if (mode === 'B') {
-                playTone(200, 0.6);
+
+                state.thrust += 8;
+                state.hp += 5;
+                state.altitude += 2500;
+            } else if (trend === 'flat') {
+                playTone(450, 0.3);
+                viewport.style.background = 'linear-gradient(180deg, #1e293b 0%, #334155 100%)';
+                plane.style.transform = 'translateY(0px) rotate(0deg) scale(1)';
+                hudStatus.innerText = statusText || 'STATUS: CRUISING ✈️';
+                hudStatus.style.color = '#38bdf8';
+
+                state.fuel -= 5;
+            } else if (trend === 'down') {
+                playTone(220, 0.4);
                 viewport.style.background = 'linear-gradient(180deg, #450a0a 0%, #0f172a 100%)';
-                plane.style.transform = 'translateY(20px) rotate(35deg) scale(0.95)';
+                plane.style.transform = 'translateY(18px) rotate(25deg) scale(0.95)';
                 alarm.classList.add('alarm-active');
-
-                hudStatus.innerText = 'WARNING: TURBULENCE ⚠️';
+                hudStatus.innerText = statusText || 'STATUS: DESCENT ⚠️';
                 hudStatus.style.color = '#ef4444';
-                hudAlt.innerText = 'ALT: 4,200 FT ↓';
 
-                state.hp -= 35; state.thrust -= 20; state.fuel -= 20;
-            } else if (mode === 'C') {
-                playTone(400, 0.5);
-                viewport.style.background = 'linear-gradient(180deg, #7c2d12 0%, #1e1b4b 100%)';
-                plane.style.transform = 'translateY(8px) rotate(5deg) scale(1)';
-                sun.style.background = '#f97316';
-                sun.style.bottom = '20%'; sun.style.left = '10%'; sun.style.opacity = '0.7';
-
-                hudStatus.innerText = 'NOTICE: FUEL LOW ⛽';
-                hudStatus.style.color = '#fbbf24';
-                hudAlt.innerText = 'ALT: 15,000 FT ↓';
-
-                state.hp += 5; state.thrust -= 10; state.fuel -= 35;
+                state.hp -= 8;
+                state.thrust -= 5;
+                state.altitude = Math.max(1000, state.altitude - 2000);
             }
 
             updateGauges();
-            setScreen('scr-event');
         }
 
-        function chooseEvent(choice) {
+        // 渲染 8 面向題目
+        function renderTurbulenceQuestion() {
+            const data = turbulenceQuestions[currentTurbIndex];
+            document.getElementById('turbDimBadge').innerText = `${currentTurbIndex + 1}/8 [${data.dimension}]`;
+            document.getElementById('turbQuestion').innerText = data.question;
+
+            const box = document.getElementById('turbOptionsBox');
+            box.innerHTML = '';
+
+            data.options.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.className = 'control-btn';
+                btn.onclick = () => chooseTurbulenceOption(opt.trend);
+                btn.innerHTML = `
+                    <div class="btn-icon">${opt.icon}</div>
+                    <div>
+                        <strong>${opt.title}</strong>
+                        <div style="font-size: calc(var(--base-font-size) * 0.42); color: #9ca3af;">${opt.desc}</div>
+                    </div>
+                `;
+                box.appendChild(btn);
+            });
+        }
+
+        function chooseTurbulenceOption(trend) {
+            playBeep();
+            applyPlaneState(trend);
+
+            currentTurbIndex++;
+            if (currentTurbIndex < turbulenceQuestions.length) {
+                renderTurbulenceQuestion();
+            } else {
+                finishTurbulenceSection();
+            }
+        }
+
+        function finishTurbulenceSection() {
             const fbTitle = document.getElementById('fb-title');
             const fbDesc = document.getElementById('fb-desc');
 
-            if (choice === 'A') {
-                state.thrust += 20;
-                state.hp -= 15;
+            if (state.thrust > 80) {
+                fbTitle.innerText = '升空特刊：極速突破大氣層';
+                fbDesc.innerText = '經過 8 大面向考驗，你展現出強烈的突破渴望與動力！但高空爬升需要更強大的資源與支援系統。';
+            } else if (state.hp < 50) {
+                fbTitle.innerText = '警報！遭遇嚴重的職場亂流';
+                fbDesc.innerText = '你在多個職涯面向面臨消耗與下墜風險。繼續硬撐容易失速，現在極需專業導航為你規劃新航道！';
             } else {
-                state.hp += 10;
-                state.fuel -= 15;
-            }
-            updateGauges();
-
-            if (state.mode === 'A') {
-                fbTitle.innerText = '升空特刊：衝刺突破大氣層';
-                fbDesc.innerText = '你充滿動力且勇於挑戰高薪！但高空爬升意味著遭遇更大阻力，你需要更強大的支援系統。';
-            } else if (state.mode === 'B') {
-                fbTitle.innerText = '警報！遭遇職場亂流中...';
-                fbDesc.innerText = '飛機遭遇失速風險，你正經歷職場消耗。繼續硬撐會加速俯衝，現在需要專業導航協助！';
-            } else {
-                fbTitle.innerText = '警報：燃料正悄悄耗盡！';
-                fbDesc.innerText = '看似平穩巡航，但油表正悄悄歸零。舒適圈的安逸正在侵蝕競爭力，是時候進行燃料補給了。';
+                fbTitle.innerText = '警報：航程燃料正悄悄耗盡';
+                fbDesc.innerText = '目前巡航看似平穩，但多個面向的停滯正在消耗優勢。是時候尋求補給與全方位轉型了。';
             }
 
             setScreen('scr-feedback');
@@ -899,9 +1020,9 @@
             const radarText = document.getElementById('bridgeRadarText');
             const btn = document.getElementById('radarBtn');
 
-            if (state.mode === 'A') {
+            if (state.thrust > 75) {
                 radarText.innerHTML = "<strong>📡 雷達熱感應解密：</strong><br>飛機正全力爬升，但前方出現氣流牆！讓你不敢再把油門拉滿攻頂的，不是飛機性能，而是你心裡那隻名為<strong>『害怕失敗與承擔責任』的老虎</strong>。";
-            } else if (state.mode === 'B') {
+            } else if (state.hp < 50) {
                 radarText.innerHTML = "<strong>📡 雷達熱感應解密：</strong><br>飛機急速俯衝，但你遲遲未拉開跳傘繩！讓你寧願下墜也不敢跳傘的，是下方叢林那隻名為<strong>『害怕重新開始』的老虎</strong>。";
             } else {
                 radarText.innerHTML = "<strong>📡 雷達熱感應解密：</strong><br>巡航平穩但燃料僅剩 15%！讓你明知沒油卻依然困在駕駛艙的，是前方溫水區那隻名為<strong>『舒適圈麻木』的老虎</strong>。";
@@ -944,19 +1065,19 @@
             document.getElementById('repName').innerText = state.name;
             document.getElementById('repQuote').innerText = state.quote;
 
-            if (state.thrust > 70) {
+            if (state.thrust > 75) {
                 state.badge = '🏅 獲頒成就：【極速越浪飛行員】';
-            } else if (state.hp < 40) {
+            } else if (state.hp < 50) {
                 state.badge = '🛡️ 獲頒成就：【高壓求生專家】';
             } else {
                 state.badge = '🌅 獲頒成就：【安逸巡航探測器】';
             }
             badge.innerText = state.badge;
 
-            if (state.mode === 'A') {
+            if (state.thrust > 75) {
                 title.innerText = '🛫 升空特刊型：尋求突破大氣層的能量';
                 desc.innerText = '你處於積極擴張期，但獨自爬升容易遭遇高空亂流。你需要一個能讓職涯高度翻倍的事業平台！';
-            } else if (state.mode === 'B') {
+            } else if (state.hp < 50) {
                 title.innerText = '🛬 亂流警報型：急需全新航道與導航';
                 desc.innerText = '你飽受職場亂流與環境消耗所苦。此時硬撐代價極高，你需要全新的航道與導師導航重新起飛。';
             } else {
@@ -965,7 +1086,7 @@
             }
 
             setScreen('scr-report');
-            updateBookingPreview(); // 顯示當前預設日期時間卡片
+            updateBookingPreview();
         }
 
         function submitForm(e) {
