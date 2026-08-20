@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>職涯飛行模擬器 - Career Cockpit Simulator</title>
+    <!-- 載入 YouTube IFrame Player API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         :root {
-            /* 動態字體大小基準，預設 20px */
-            --base-font-size: 20px;
+            /* 預設字體大小調整為 28px */
+            --base-font-size: 28px;
         }
 
         * {
@@ -35,9 +37,9 @@
         /* 模擬器主體框架 */
         .simulator-card {
             width: 100%;
-            max-width: 460px;
+            max-width: 500px;
             height: 100%;
-            max-height: 850px;
+            max-height: 900px;
             background: #111827;
             border-radius: 24px;
             box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.05);
@@ -52,8 +54,8 @@
         .cockpit-viewport {
             position: relative;
             width: 100%;
-            height: 35%;
-            min-height: 170px;
+            height: 30%;
+            min-height: 160px;
             background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
             overflow: hidden;
             display: flex;
@@ -93,7 +95,7 @@
         .plane-container {
             position: relative;
             z-index: 10;
-            font-size: calc(var(--base-font-size) * 2.8);
+            font-size: calc(var(--base-font-size) * 2);
             transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
             filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
         }
@@ -108,7 +110,7 @@
             align-items: center;
             z-index: 15;
             font-family: monospace;
-            font-size: calc(var(--base-font-size) * 0.65);
+            font-size: calc(var(--base-font-size) * 0.5);
             color: #38bdf8;
             letter-spacing: 1px;
             text-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
@@ -146,7 +148,7 @@
             transition: width 0.8s ease, background 0.8s ease;
         }
 
-        /* 控制面板 */
+        /* 控制面板區塊 (允許滾動防止 28px 超出) */
         .cockpit-controls {
             flex: 1;
             padding: 12px;
@@ -155,7 +157,7 @@
             background: #111827;
             position: relative;
             z-index: 20;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .screen {
@@ -172,7 +174,7 @@
         }
 
         .dialog-title {
-            font-size: calc(var(--base-font-size) * 0.95);
+            font-size: calc(var(--base-font-size) * 0.75);
             font-weight: 700;
             color: #f3f4f6;
             margin-bottom: 4px;
@@ -180,7 +182,7 @@
         }
 
         .dialog-desc {
-            font-size: calc(var(--base-font-size) * 0.7);
+            font-size: calc(var(--base-font-size) * 0.55);
             color: #9ca3af;
             margin-bottom: 8px;
             line-height: 1.25;
@@ -198,7 +200,7 @@
             gap: 8px;
         }
         .font-slider-label {
-            font-size: calc(var(--base-font-size) * 0.65);
+            font-size: calc(var(--base-font-size) * 0.5);
             color: #38bdf8;
             white-space: nowrap;
         }
@@ -214,8 +216,8 @@
         .font-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: #6366f1;
             cursor: pointer;
@@ -232,7 +234,7 @@
             margin-bottom: 6px;
             color: #f3f4f6;
             text-align: left;
-            font-size: calc(var(--base-font-size) * 0.75);
+            font-size: calc(var(--base-font-size) * 0.55);
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -245,7 +247,7 @@
         }
 
         .btn-icon {
-            font-size: calc(var(--base-font-size) * 1.1);
+            font-size: calc(var(--base-font-size) * 0.8);
             width: 28px;
             height: 28px;
             border-radius: 6px;
@@ -262,13 +264,38 @@
             color: #ffffff;
             border: none;
             border-radius: 10px;
-            padding: 10px;
-            font-size: calc(var(--base-font-size) * 0.8);
+            padding: 8px;
+            font-size: calc(var(--base-font-size) * 0.6);
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
             transition: all 0.2s ease;
             flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        /* 雷達掃描動畫 */
+        .radar-box {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #10b981;
+            border-radius: 50%;
+            margin: 10px auto;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(0,0,0,0.8) 80%);
+        }
+        .radar-sweep {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 50%; height: 50%;
+            background: linear-gradient(45deg, rgba(16,185,129,0.6) 0%, transparent 100%);
+            transform-origin: 0% 0%;
+            animation: radarRotate 2s linear infinite;
+        }
+        @keyframes radarRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* 影片與彈幕區域 */
@@ -276,14 +303,15 @@
             position: relative;
             width: 100%;
             margin-bottom: 6px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
         }
         .video-box {
             position: relative;
-            padding-bottom: 40%;
+            padding-bottom: 45%;
             height: 0;
             overflow: hidden;
-            border-radius: 8px;
-            border: 1px solid #374151;
         }
         .video-box iframe {
             position: absolute;
@@ -291,7 +319,6 @@
             pointer-events: auto;
         }
         
-        /* 彈幕特效容器 */
         .danmaku-container {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -304,7 +331,7 @@
             white-space: nowrap;
             color: #fef08a;
             font-weight: bold;
-            font-size: calc(var(--base-font-size) * 0.7);
+            font-size: calc(var(--base-font-size) * 0.5);
             text-shadow: 0 0 4px rgba(0,0,0,0.9);
             animation: danmakuFly 3.5s linear forwards;
         }
@@ -319,7 +346,7 @@
             border-radius: 8px;
             padding: 6px 8px;
             margin-bottom: 5px;
-            font-size: calc(var(--base-font-size) * 0.65);
+            font-size: calc(var(--base-font-size) * 0.5);
             color: #d1d5db;
             cursor: pointer;
             line-height: 1.25;
@@ -346,7 +373,7 @@
             border-radius: 6px;
             padding: 6px 8px;
             color: #fff;
-            font-size: calc(var(--base-font-size) * 0.7);
+            font-size: calc(var(--base-font-size) * 0.5);
             margin-bottom: 5px;
             outline: none;
             user-select: text;
@@ -356,7 +383,7 @@
 
         .error-hint {
             color: #ef4444;
-            font-size: calc(var(--base-font-size) * 0.6);
+            font-size: calc(var(--base-font-size) * 0.45);
             margin-bottom: 4px;
             display: none;
         }
@@ -365,7 +392,7 @@
 <body>
 
     <div class="simulator-card">
-        <!-- 頂部 Cockpit 駕駛艙景觀螢幕 -->
+        <!-- 頂部 HUD 駕駛艙螢幕 -->
         <div class="cockpit-viewport" id="viewport">
             <div class="alarm-overlay" id="alarmOverlay"></div>
             <div class="sun-effect" id="sunEffect"></div>
@@ -380,34 +407,34 @@
             <!-- 三維動態儀表板 -->
             <div class="hud-gauges">
                 <div style="flex:1;">
-                    <div style="font-size:calc(var(--base-font-size) * 0.45); color:#9ca3af; margin-bottom:1px;">HP (心智)</div>
+                    <div style="font-size:calc(var(--base-font-size) * 0.35); color:#9ca3af; margin-bottom:1px;">HP (心智)</div>
                     <div class="gauge-bar-bg"><div class="gauge-bar-fill" id="hpBar" style="width: 80%; background: #10b981;"></div></div>
                 </div>
                 <div style="flex:1;">
-                    <div style="font-size:calc(var(--base-font-size) * 0.45); color:#9ca3af; margin-bottom:1px;">THRUST (推力)</div>
+                    <div style="font-size:calc(var(--base-font-size) * 0.35); color:#9ca3af; margin-bottom:1px;">THRUST (推力)</div>
                     <div class="gauge-bar-bg"><div class="gauge-bar-fill" id="thrustBar" style="width: 60%; background:#a855f7;"></div></div>
                 </div>
                 <div style="flex:1;">
-                    <div style="font-size:calc(var(--base-font-size) * 0.45); color:#9ca3af; margin-bottom:1px;">FUEL (燃料)</div>
+                    <div style="font-size:calc(var(--base-font-size) * 0.35); color:#9ca3af; margin-bottom:1px;">FUEL (燃料)</div>
                     <div class="gauge-bar-bg"><div class="gauge-bar-fill" id="fuelBar" style="width: 70%; background:#38bdf8;"></div></div>
                 </div>
             </div>
         </div>
 
-        <!-- 下方控制儀表板與流程 -->
+        <!-- 下方控制儀表板 -->
         <div class="cockpit-controls">
 
-            <!-- 畫面 1: 首頁 (預 central 20px) -->
+            <!-- 畫面 1: 首頁 (預設字體 28px) -->
             <div id="scr-start" class="screen active">
                 <div>
                     <div class="dialog-title">🛩️ 職場飛行模擬器啟動</div>
-                    <div class="dialog-desc">歡迎進入駕駛艙！請設定體驗視覺並進行身份授權：</div>
+                    <div class="dialog-desc">歡迎進入駕駛艙！設定視覺並進行授權：</div>
 
-                    <!-- 字體拉霸：預設 20px -->
+                    <!-- 字體拉霸：預設 28px -->
                     <div class="font-slider-container">
                         <span class="font-slider-label">🔤 字體大小</span>
-                        <input type="range" class="font-slider" id="fontSlider" min="12" max="24" value="20" oninput="adjustFontSize(this.value)">
-                        <span class="font-slider-label" id="fontValDisplay">20px</span>
+                        <input type="range" class="font-slider" id="fontSlider" min="16" max="36" value="28" oninput="adjustFontSize(this.value)">
+                        <span class="font-slider-label" id="fontValDisplay">28px</span>
                     </div>
 
                     <div>
@@ -431,7 +458,7 @@
                         <div class="btn-icon">🛫</div>
                         <div>
                             <strong>A. 正在往上飛</strong>
-                            <div style="font-size: calc(var(--base-font-size) * 0.55); color: #9ca3af;">全力爬升、突破挑戰中</div>
+                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af;">全力爬升，很有前景與希望</div>
                         </div>
                     </button>
 
@@ -439,31 +466,31 @@
                         <div class="btn-icon">🛬</div>
                         <div>
                             <strong>B. 在往下飛</strong>
-                            <div style="font-size: calc(var(--base-font-size) * 0.55); color: #9ca3af;">遭遇亂流、感到下滑或掏空</div>
+                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af;">遭遇亂流，感覺沒前景沒希望</div>
                         </div>
                     </button>
 
                     <button class="control-btn" onclick="playBeep(); triggerMode('C')">
                         <div class="btn-icon">🌅</div>
                         <div>
-                            <strong>C. 平行飛行但慢慢降落</strong>
-                            <div style="font-size: calc(var(--base-font-size) * 0.55); color: #9ca3af;">看似平穩，但燃料正逐漸耗盡</div>
+                            <strong>C. 平行飛但慢慢降落</strong>
+                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af;">現在平穩，但產業與職位長期式微</div>
                         </div>
                     </button>
                 </div>
             </div>
 
-            <!-- 畫面 3: 職場突發事件 (情境題) -->
+            <!-- 畫面 3: 職場突發事件 -->
             <div id="scr-event" class="screen">
                 <div>
                     <div class="dialog-title">⚠️ 突發情況：高空職場亂流！</div>
-                    <div class="dialog-desc">團隊遇到緊急專案與無預警加班需求，你的應對策略是？</div>
+                    <div class="dialog-desc">團隊遇到緊急專案與無預警加班，你的應對策略是？</div>
 
                     <button class="control-btn" onclick="playBeep(); chooseEvent('A')">
                         <div class="btn-icon">⚡</div>
                         <div>
                             <strong>主動扛下任務，展現領導力</strong>
-                            <div style="font-size: calc(var(--base-font-size) * 0.55); color: #9ca3af;">推力+20% | 心智-15%</div>
+                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af;">推力+20% | 心智-15%</div>
                         </div>
                     </button>
 
@@ -471,7 +498,7 @@
                         <div class="btn-icon">🛡️</div>
                         <div>
                             <strong>畫清界線，避免被過度消耗</strong>
-                            <div style="font-size: calc(var(--base-font-size) * 0.55); color: #9ca3af;">心智+10% | 燃料-15%</div>
+                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af;">心智+10% | 燃料-15%</div>
                         </div>
                     </button>
                 </div>
@@ -483,19 +510,34 @@
                     <div class="dialog-title" id="fb-title">狀態分析中...</div>
                     <div class="dialog-desc" id="fb-desc">...</div>
                 </div>
-                <button class="cta-btn" onclick="playBeep(); goToTiger()">進入下一階段：老虎挑戰 ➔</button>
+                <button class="cta-btn" onclick="playBeep(); goToBridge()">啟動高空雷達掃描 ➔</button>
             </div>
 
-            <!-- 畫面 5: 老虎關卡（含動態彈幕） -->
+            <!-- 畫面 5: 雷達掃描銜接頁 (Bridge) -->
+            <div id="scr-bridge" class="screen" style="text-align: center;">
+                <div>
+                    <div class="dialog-title" style="color: #fbbf24;">📡 塔台廣播：雷達障礙偵測</div>
+                    <div class="radar-box">
+                        <div class="radar-sweep"></div>
+                    </div>
+                    <div class="dialog-desc" id="bridgeRadarText" style="text-align: left; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
+                        點擊下方進行雷達熱感應解密...
+                    </div>
+                </div>
+                <button class="cta-btn" id="radarBtn" onclick="playBeep(); scanRadarObstacle()">🔍 掃描航道前方障礙 ➔</button>
+            </div>
+
+            <!-- 畫面 6: 老虎關卡（全螢幕影片連動） -->
             <div id="scr-tiger" class="screen">
-                <div style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100% - 40px);">
+                <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                     <div>
                         <div class="dialog-title">🐯 老虎關卡：影音共鳴</div>
-                        <div class="dialog-desc" style="margin-bottom: 4px;">觀看影片並點選最符合感觸的一句話：</div>
+                        <div class="dialog-desc">點擊播放影片，觀看後選擇最貼近的感觸：</div>
 
-                        <div class="video-wrapper">
+                        <div class="video-wrapper" id="videoWrapper">
                             <div class="video-box">
-                                <iframe src="https://www.youtube.com/embed/SDHDKS7gIyI" title="Tiger Video" allowfullscreen></iframe>
+                                <!-- YT API 引用的 iframe -->
+                                <iframe id="ytplayer" src="https://www.youtube.com/embed/SDHDKS7gIyI?enablejsapi=1&rel=0" title="Tiger Video" allow="fullscreen"></iframe>
                             </div>
                             <div class="danmaku-container" id="danmakuBox"></div>
                         </div>
@@ -510,29 +552,29 @@
                             💡 不敢嘗試突破，其實只是害怕失敗代價。
                         </div>
                     </div>
+                    <button class="cta-btn" id="toReportBtn" style="display:none;" onclick="playBeep(); showDiagnosis()">解鎖我的飛行診斷書 ➔</button>
                 </div>
-                <button class="cta-btn" id="toReportBtn" style="display:none;" onclick="playBeep(); showDiagnosis()">解鎖我的飛行診斷書 ➔</button>
             </div>
 
-            <!-- 畫面 6: 診斷書卡片與稱號 -->
+            <!-- 畫面 7: 診斷書卡片 -->
             <div id="scr-report" class="screen">
                 <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                     <div>
                         <div class="dialog-title">📋 專屬「職涯狀態診斷書」</div>
                         
                         <div class="report-card">
-                            <div style="font-size: calc(var(--base-font-size) * 0.6); color: #9ca3af; margin-bottom: 2px;">
+                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af; margin-bottom: 2px;">
                                 單位：<span id="repOffice" style="color:#fff;">-</span> ｜ 姓名：<span id="repName" style="color:#fff;">-</span>
                             </div>
-                            <div style="font-weight: 700; color: #38bdf8; margin-bottom: 2px; font-size: calc(var(--base-font-size) * 0.75);" id="repTitle">...</div>
-                            <div style="font-size: calc(var(--base-font-size) * 0.6); color: #a855f7; font-weight: bold; margin-bottom: 4px;" id="repBadge">...</div>
-                            <div style="font-size: calc(var(--base-font-size) * 0.65); color: #cbd5e1; line-height: 1.3;" id="repDesc">...</div>
-                            <div style="margin-top: 4px; padding: 4px 6px; background: rgba(255,255,255,0.05); border-left: 3px solid #818cf8; font-size: calc(var(--base-font-size) * 0.55); color: #e2e8f0;">
+                            <div style="font-weight: 700; color: #38bdf8; margin-bottom: 2px; font-size: calc(var(--base-font-size) * 0.55);" id="repTitle">...</div>
+                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #a855f7; font-weight: bold; margin-bottom: 4px;" id="repBadge">...</div>
+                            <div style="font-size: calc(var(--base-font-size) * 0.5); color: #cbd5e1; line-height: 1.3;" id="repDesc">...</div>
+                            <div style="margin-top: 4px; padding: 4px 6px; background: rgba(255,255,255,0.05); border-left: 3px solid #818cf8; font-size: calc(var(--base-font-size) * 0.45); color: #e2e8f0;">
                                 <strong>心靈共鳴：</strong><span id="repQuote">-</span>
                             </div>
                         </div>
 
-                        <div style="font-size: calc(var(--base-font-size) * 0.7); font-weight: 600; margin-bottom: 3px;">🤝 預約導師 1-on-1 航道解析</div>
+                        <div style="font-size: calc(var(--base-font-size) * 0.55); font-weight: 600; margin-bottom: 3px;">🤝 預約導師 1-on-1 航道解析</div>
                         <form id="contactForm" onsubmit="submitForm(event)">
                             <input type="text" class="input-style" id="uContact" placeholder="LINE ID 或 聯絡電話" required>
                         </form>
@@ -541,9 +583,9 @@
                 </div>
             </div>
 
-            <!-- 畫面 7: 完成頁 -->
+            <!-- 畫面 8: 完成頁 -->
             <div id="scr-thanks" class="screen" style="text-align: center; justify-content: center;">
-                <div style="font-size: calc(var(--base-font-size) * 2.5); margin-bottom: 8px;">🛫</div>
+                <div style="font-size: calc(var(--base-font-size) * 2); margin-bottom: 8px;">🛫</div>
                 <div class="dialog-title">航道解析預約已送出！</div>
                 <div class="dialog-desc">專屬導師將會在 24 小時內與你聯繫，協助你重新設定職涯飛行藍圖。</div>
                 <button class="cta-btn" onclick="playBeep(); location.reload()" style="margin-top: 10px;">重新體驗模擬器</button>
@@ -573,7 +615,46 @@
             badge: ''
         };
 
-        // Web Audio API 音效生成
+        // YouTube Player API
+        let ytPlayer;
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('ytplayer', {
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            const container = document.getElementById('videoWrapper');
+            // 當開始播放 (PLAYING = 1) -> 觸發全螢幕
+            if (event.data === YT.PlayerState.PLAYING) {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen().catch(err => console.log("全螢幕請求受限:", err));
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                }
+            }
+            // 當影片結束 (ENDED = 0) -> 自動退出全螢幕
+            if (event.data === YT.PlayerState.ENDED) {
+                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            }
+        }
+
+        // 離開影片頁面時停止播放
+        function stopTigerVideo() {
+            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+                ytPlayer.pauseVideo();
+            }
+        }
+
+        // Web Audio API 音效
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playBeep() {
@@ -604,7 +685,6 @@
             osc.stop(audioCtx.currentTime + duration);
         }
 
-        // 動態調整字體大小函數
         function adjustFontSize(val) {
             document.documentElement.style.setProperty('--base-font-size', val + 'px');
             document.getElementById('fontValDisplay').innerText = val + 'px';
@@ -617,6 +697,11 @@
         }
 
         function setScreen(id) {
+            // 若切換離開老虎頁面，停止影片播放
+            if (id !== 'scr-tiger') {
+                stopTigerVideo();
+            }
+
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
@@ -718,31 +803,48 @@
             updateGauges();
 
             if (state.mode === 'A') {
-                fbTitle.innerText = '升空特刊：目標突破大氣層！';
-                fbDesc.innerText = '你充滿動力且勇於挑戰更高的視界！高空爬升意味著遭遇更大風阻，你需要更強大的系統支援，才能順利突破大氣層。';
+                fbTitle.innerText = '升空特刊：衝刺突破大氣層';
+                fbDesc.innerText = '你充滿動力且勇於挑戰高薪！但高空爬升意味著遭遇更大阻力，你需要更強大的支援系統系統。';
             } else if (state.mode === 'B') {
                 fbTitle.innerText = '警報！遭遇職場亂流中...';
-                fbDesc.innerText = '警告！飛機遭遇亂流與失速風險，你可能正在經歷職場消耗。繼續硬撐會加速俯衝，現在需要專業導航重新矯正航線！';
+                fbDesc.innerText = '飛機遭遇失速風險，你正經歷職場消耗。繼續硬撐會加速俯衝，現在需要專業導航協助！';
             } else {
                 fbTitle.innerText = '警報：燃料正悄悄耗盡！';
-                fbDesc.innerText = '看似平穩巡航，但夕陽西下，油表指針正悄悄歸零。舒適圈的安逸正在侵蝕競爭力，是時候進行燃料補給了！';
+                fbDesc.innerText = '看似平穩巡航，但油表正悄悄歸零。舒適圈的安逸正在侵蝕競爭力，是時候進行燃料補給了。';
             }
 
             setScreen('scr-feedback');
         }
 
-        function goToTiger() {
-            setScreen('scr-tiger');
+        function goToBridge() {
+            setScreen('scr-bridge');
+        }
+
+        function scanRadarObstacle() {
+            playTone(900, 0.3);
+            const radarText = document.getElementById('bridgeRadarText');
+            const btn = document.getElementById('radarBtn');
+
+            if (state.mode === 'A') {
+                radarText.innerHTML = "<strong>📡 雷達熱感應解密：</strong><br>飛機正全力爬升，但前方出現氣流牆！讓你不敢再把油門拉滿攻頂的，不是飛機性能，而是你心裡那隻名為<strong>『害怕失敗與承擔責任』的老虎</strong>。";
+            } else if (state.mode === 'B') {
+                radarText.innerHTML = "<strong>📡 雷達熱感應解密：</strong><br>飛機急速俯衝，但你遲遲未拉開跳傘繩！讓你寧願下墜也不敢跳傘的，是下方叢林那隻名為<strong>『害怕重新開始』的老虎</strong>。";
+            } else {
+                radarText.innerHTML = "<strong>📡 雷達熱感應解密：</strong><br>巡航平穩但燃料僅剩 15%！讓你明知沒油卻依然困在駕駛艙的，是前方溫水區那隻名為<strong>『舒適圈麻木』的老虎</strong>。";
+            }
+
+            btn.innerText = "🐯 進入老虎關卡，面對隱形阻力 ➔";
+            btn.onclick = function() {
+                playBeep();
+                setScreen('scr-tiger');
+            };
         }
 
         function pickQuote(el, text) {
             document.querySelectorAll('.quote-item').forEach(q => q.classList.remove('selected'));
             el.classList.add('selected');
             state.quote = text;
-            
-            // 觸發彈幕效果
             triggerDanmaku(text);
-
             document.getElementById('toReportBtn').style.display = 'block';
         }
 
@@ -751,7 +853,7 @@
             const danmaku = document.createElement('div');
             danmaku.className = 'danmaku-text';
             danmaku.innerText = text;
-            danmaku.style.top = Math.random() * 60 + '%';
+            danmaku.style.top = Math.random() * 50 + '%';
             container.appendChild(danmaku);
 
             setTimeout(() => {
@@ -768,7 +870,6 @@
             document.getElementById('repName').innerText = state.name;
             document.getElementById('repQuote').innerText = state.quote;
 
-            // 計算稱號
             if (state.thrust > 70) {
                 state.badge = '🏅 獲頒成就：【極速越浪飛行員】';
             } else if (state.hp < 40) {
@@ -780,7 +881,7 @@
 
             if (state.mode === 'A') {
                 title.innerText = '🛫 升空特刊型：尋求突破大氣層的能量';
-                desc.innerText = '你處於積極擴張期，但獨自爬升容易遭遇高空亂流。你需要一個能讓你職涯高度翻倍的事業平台！';
+                desc.innerText = '你處於積極擴張期，但獨自爬升容易遭遇高空亂流。你需要一個能讓職涯高度翻倍的事業平台！';
             } else if (state.mode === 'B') {
                 title.innerText = '🛬 亂流警報型：急需全新航道與導航';
                 desc.innerText = '你飽受職場亂流與環境消耗所苦。此時硬撐代價極高，你需要全新的航道與導師導航重新起飛。';
@@ -795,7 +896,7 @@
         function submitForm(e) {
             e.preventDefault();
             state.contact = document.getElementById('uContact').value;
-            console.log("提交的完整診斷資料：", state);
+            console.log("完整診斷資料：", state);
             setScreen('scr-thanks');
         }
     </script>
