@@ -6,8 +6,6 @@
     <title>職涯飛行模擬器 - Career Cockpit Simulator</title>
     <!-- 載入 YouTube IFrame Player API -->
     <script src="https://www.youtube.com/iframe_api"></script>
-    <!-- 載入 html2canvas 以支援截圖功能 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             /* 預設字體大小 28px */
@@ -276,21 +274,6 @@
             margin-top: 4px;
         }
 
-        .save-btn {
-            width: 100%;
-            background: #10b981;
-            color: #ffffff;
-            border: none;
-            border-radius: 10px;
-            padding: 8px;
-            font-size: calc(var(--base-font-size) * 0.55);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 6px;
-            margin-bottom: 6px;
-        }
-
         /* 雷達掃描動畫 */
         .radar-box {
             width: 100px;
@@ -335,6 +318,20 @@
             top:0; left:0; width:100%; height:100%;
             pointer-events: auto;
         }
+
+        .fullscreen-btn-overlay {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: calc(var(--base-font-size) * 0.4);
+            z-index: 35;
+            cursor: pointer;
+        }
         
         .danmaku-container {
             position: absolute;
@@ -375,13 +372,13 @@
             font-weight: 600;
         }
 
-        /* 可截圖的診斷書卡片 */
+        /* 診斷書卡片 */
         .report-card {
             background: rgba(17, 24, 39, 0.95);
             border: 1px solid #374151;
             border-radius: 12px;
             padding: 10px 12px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
@@ -400,28 +397,19 @@
         }
         .input-style:focus { border-color: #6366f1; }
 
-        /* 行事曆時段按鈕組 */
-        .time-slots-container {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-        .time-slot-btn {
-            flex: 1;
-            background: #1f2937;
-            border: 1px solid #374151;
-            color: #d1d5db;
-            padding: 6px 0;
-            border-radius: 6px;
-            font-size: calc(var(--base-font-size) * 0.45);
-            cursor: pointer;
+        /* 即時彈出顯示視窗 */
+        .booking-preview-card {
+            background: rgba(14, 165, 233, 0.15);
+            border: 1.5px solid #38bdf8;
+            border-radius: 10px;
+            padding: 8px;
+            margin-top: 8px;
             text-align: center;
+            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .time-slot-btn.selected {
-            background: #4f46e5;
-            color: #fff;
-            border-color: #818cf8;
-            font-weight: bold;
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .error-hint {
@@ -570,16 +558,17 @@
                 <button class="cta-btn" id="radarBtn" onclick="playBeep(); scanRadarObstacle()">🔍 掃描航道前方障礙 ➔</button>
             </div>
 
-            <!-- 畫面 6: 老虎關卡（全螢幕影片連動） -->
+            <!-- 畫面 6: 老虎關卡（影片區） -->
             <div id="scr-tiger" class="screen">
                 <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                     <div>
                         <div class="dialog-title">🐯 老虎關卡：影音共鳴</div>
                         <div class="dialog-desc">點擊播放影片，觀看後選擇最貼近的感觸：</div>
 
-                        <div class="video-wrapper" id="videoWrapper">
+                        <div class="video-wrapper" id="videoWrapper" onclick="requestVideoFullscreen()">
+                            <div class="fullscreen-btn-overlay" onclick="requestVideoFullscreen(); event.stopPropagation();">⛶ 全螢幕觀看</div>
                             <div class="video-box">
-                                <iframe id="ytplayer" src="https://www.youtube.com/embed/SDHDKS7gIyI?enablejsapi=1&rel=0" title="Tiger Video" allow="fullscreen"></iframe>
+                                <iframe id="ytplayer" src="https://www.youtube.com/embed/SDHDKS7gIyI?enablejsapi=1&rel=0&playsinline=0" title="Tiger Video" allow="fullscreen"></iframe>
                             </div>
                             <div class="danmaku-container" id="danmakuBox"></div>
                         </div>
@@ -598,14 +587,13 @@
                 </div>
             </div>
 
-            <!-- 畫面 7: 診斷書卡片與行事曆選擇 -->
+            <!-- 畫面 7: 診斷書卡片與預約導師（滾輪時間選擇與即時卡片顯示） -->
             <div id="scr-report" class="screen">
                 <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                     <div>
                         <div class="dialog-title">📋 專屬「職涯狀態診斷書」</div>
                         
-                        <!-- 可截圖保存的診斷卡片區域 -->
-                        <div class="report-card" id="reportCardToCapture">
+                        <div class="report-card">
                             <div style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af; margin-bottom: 2px;">
                                 單位：<span id="repOffice" style="color:#fff;">-</span> ｜ 姓名：<span id="repName" style="color:#fff;">-</span>
                             </div>
@@ -617,25 +605,24 @@
                             </div>
                         </div>
 
-                        <!-- 截圖下載按鈕 -->
-                        <button class="save-btn" onclick="captureReport()">📷 下載診斷書圖片 (儲存分享)</button>
-
-                        <!-- 直覺式行事曆與時間點選擇 -->
-                        <div style="font-size: calc(var(--base-font-size) * 0.55); font-weight: 600; margin-bottom: 4px;">📅 選擇導師 1-on-1 諮詢時間</div>
+                        <!-- 預約導師行事曆與時間滾輪選取 -->
+                        <div style="font-size: calc(var(--base-font-size) * 0.55); font-weight: 600; margin-bottom: 6px; color: #38bdf8;">📅 預約導師 1-on-1 諮詢時間</div>
                         <form id="bookingForm" onsubmit="submitForm(event)">
-                            <div style="margin-bottom: 4px;">
-                                <label style="font-size: calc(var(--base-font-size) * 0.4); color: #9ca3af;">預約日期：</label>
-                                <input type="date" class="input-style" id="bookDate" required style="color-scheme: dark;">
+                            <div style="margin-bottom: 6px;">
+                                <label style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af;">預約日期：</label>
+                                <input type="date" class="input-style" id="bookDate" onchange="updateBookingPreview()" required style="color-scheme: dark;">
                             </div>
                             <div>
-                                <label style="font-size: calc(var(--base-font-size) * 0.4); color: #9ca3af;">時段選擇：</label>
-                                <div class="time-slots-container">
-                                    <div class="time-slot-btn selected" onclick="selectSlot(this, '上午 (10:00-12:00)')">上午</div>
-                                    <div class="time-slot-btn" onclick="selectSlot(this, '下午 (14:00-17:00)')">下午</div>
-                                    <div class="time-slot-btn" onclick="selectSlot(this, '晚上 (19:00-21:00)')">晚上</div>
-                                </div>
+                                <label style="font-size: calc(var(--base-font-size) * 0.45); color: #9ca3af;">預約時間（點擊喚起時間滾輪）：</label>
+                                <input type="time" class="input-style" id="bookTime" value="10:00" onchange="updateBookingPreview()" required style="color-scheme: dark;">
                             </div>
                         </form>
+
+                        <!-- 日期時間選完後彈出的卡片區塊 -->
+                        <div id="bookingPreviewBox" class="booking-preview-card" style="display: none;">
+                            <div style="font-size: calc(var(--base-font-size) * 0.45); color: #38bdf8; font-weight: bold;">📌 已選擇預約時間</div>
+                            <div id="bookingPreviewText" style="font-size: calc(var(--base-font-size) * 0.65); font-weight: 700; color: #ffffff; margin-top: 2px;"></div>
+                        </div>
                     </div>
                     <button class="cta-btn" onclick="playBeep(); document.getElementById('bookingForm').requestSubmit()">確認預約導師諮詢 ➔</button>
                 </div>
@@ -644,8 +631,8 @@
             <!-- 畫面 8: 完成頁 -->
             <div id="scr-thanks" class="screen" style="text-align: center; justify-content: center;">
                 <div style="font-size: calc(var(--base-font-size) * 2); margin-bottom: 8px;">🛫</div>
-                <div class="dialog-title">航道解析預約已送出！</div>
-                <div class="dialog-desc" id="thanksMsg">專屬導師將會在預約時段與你聯繫，協助你重新設定職涯飛行藍圖。</div>
+                <div class="dialog-title">預約導師成功！</div>
+                <div class="dialog-desc" id="thanksMsg">專屬導師將會在您預約的時間與您聯繫，協助重新設定職涯飛行藍圖。</div>
                 <button class="cta-btn" onclick="playBeep(); location.reload()" style="margin-top: 10px;">重新體驗模擬器</button>
             </div>
 
@@ -667,14 +654,14 @@
             mode: '',
             quote: '',
             bookDate: '',
-            bookSlot: '上午 (10:00-12:00)',
+            bookTime: '10:00',
             hp: 80,
             thrust: 60,
             fuel: 70,
             badge: ''
         };
 
-        // 初始化日期選擇器的預設值（設為明天）
+        // 初始化日期選擇器（預設明天）
         window.addEventListener('DOMContentLoaded', () => {
             const dateInput = document.getElementById('bookDate');
             const tomorrow = new Date();
@@ -682,6 +669,21 @@
             dateInput.value = tomorrow.toISOString().split('T')[0];
             dateInput.min = new Date().toISOString().split('T')[0];
         });
+
+        // 即時更新並顯示預約日期與時間
+        function updateBookingPreview() {
+            const dateVal = document.getElementById('bookDate').value;
+            const timeVal = document.getElementById('bookTime').value;
+            const previewBox = document.getElementById('bookingPreviewBox');
+            const previewText = document.getElementById('bookingPreviewText');
+
+            if (dateVal && timeVal) {
+                state.bookDate = dateVal;
+                state.bookTime = timeVal;
+                previewText.innerText = `${dateVal}  ${timeVal}`;
+                previewBox.style.display = 'block';
+            }
+        }
 
         // YouTube Player API
         let ytPlayer;
@@ -693,14 +695,22 @@
             });
         }
 
-        function onPlayerStateChange(event) {
+        function requestVideoFullscreen() {
             const container = document.getElementById('videoWrapper');
+            const iframe = document.getElementById('ytplayer');
+
+            if (container.requestFullscreen) {
+                container.requestFullscreen().catch(() => {});
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen();
+            } else if (iframe.webkitEnterFullscreen) {
+                iframe.webkitEnterFullscreen();
+            }
+        }
+
+        function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.PLAYING) {
-                if (container.requestFullscreen) {
-                    container.requestFullscreen().catch(err => console.log("全螢幕請求受限:", err));
-                } else if (container.webkitRequestFullscreen) {
-                    container.webkitRequestFullscreen();
-                }
+                requestVideoFullscreen();
             }
             if (event.data === YT.PlayerState.ENDED) {
                 if (document.fullscreenElement || document.webkitFullscreenElement) {
@@ -868,7 +878,7 @@
 
             if (state.mode === 'A') {
                 fbTitle.innerText = '升空特刊：衝刺突破大氣層';
-                fbDesc.innerText = '你充滿動力且勇於挑戰高薪！但高空爬升意味著遭遇更大阻力，你需要更強大的支援系統系統。';
+                fbDesc.innerText = '你充滿動力且勇於挑戰高薪！但高空爬升意味著遭遇更大阻力，你需要更強大的支援系統。';
             } else if (state.mode === 'B') {
                 fbTitle.innerText = '警報！遭遇職場亂流中...';
                 fbDesc.innerText = '飛機遭遇失速風險，你正經歷職場消耗。繼續硬撐會加速俯衝，現在需要專業導航協助！';
@@ -955,39 +965,18 @@
             }
 
             setScreen('scr-report');
-        }
-
-        // 選擇時段按鈕事件
-        function selectSlot(el, slotText) {
-            playBeep();
-            document.querySelectorAll('.time-slot-btn').forEach(btn => btn.classList.remove('selected'));
-            el.classList.add('selected');
-            state.bookSlot = slotText;
-        }
-
-        // 截圖儲存功能 (html2canvas)
-        function captureReport() {
-            playBeep();
-            const card = document.getElementById('reportCardToCapture');
-            html2canvas(card, {
-                backgroundColor: '#111827',
-                scale: 2
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `${state.name}_職涯飛行診斷書.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
+            updateBookingPreview(); // 顯示當前預設日期時間卡片
         }
 
         function submitForm(e) {
             e.preventDefault();
             state.bookDate = document.getElementById('bookDate').value;
+            state.bookTime = document.getElementById('bookTime').value;
             
             const thanksMsg = document.getElementById('thanksMsg');
-            thanksMsg.innerText = `已成功為您預約 ${state.bookDate} ${state.bookSlot}！專屬導師將會在該時段與您聯繫。`;
+            thanksMsg.innerText = `已成功為您預約 ${state.bookDate} ${state.bookTime}！專屬導師將會在該時間點與您聯繫。`;
             
-            console.log("完整診斷與預約資料：", state);
+            console.log("預約導師完整資料：", state);
             setScreen('scr-thanks');
         }
     </script>
